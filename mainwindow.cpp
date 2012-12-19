@@ -139,13 +139,14 @@ void MainWindow::on_pushButton_2_clicked ()
     cv::Mat_<double> P2 = rec.pickTheRightP (P1, rec.getPCandidatesfromFundamentalMtx ((cv::Mat_<double>)f), (cv::Point2f)points1[2], (cv::Point2f)points2[2]);
     cv::Mat_<double> x1, x2;
     cv::Mat_<double> tmp;
+    double* tmpp;
     for (uint i=0; i<points1.size(); i++)
     {
-        cv::Mat_<double> x1 = (cv::Mat_<double>(3,1) <<  points1[i].x, points1[i].y, 1.0);
-        cv::Mat_<double> x2 = (cv::Mat_<double>(3,1) <<  points2[i].x, points2[i].y, 1.0);
+        x1 = (cv::Mat_<double>(3,1) <<  points1[i].x, points1[i].y, 1.0);
+        x2 = (cv::Mat_<double>(3,1) <<  points2[i].x, points2[i].y, 1.0);
 
         tmp = rec.triangulate (x1, x2, P1, P2);
-        double* tmpp = tmp.ptr<double>(0);
+        tmpp = tmp.ptr<double>(0);
         point_cloud.push_back (float(tmpp[0]));
         point_cloud.push_back (float(tmpp[1]));
         point_cloud.push_back (float(tmpp[2]));
@@ -155,3 +156,5 @@ void MainWindow::on_pushButton_2_clicked ()
     cout << "- vector point_cloud's size' : " << point_cloud.size() << endl;
     GLFrame_1->displayPointCloud (point_cloud);
 }
+
+

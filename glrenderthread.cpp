@@ -4,6 +4,7 @@
 #include <math.h>
 
 #include <iostream>
+#include <QSound>
 using namespace std;
 
 
@@ -143,8 +144,9 @@ void GLRenderThread::paintGL (void)
     glEnable(GL_POINT_SMOOTH);
     glPointSize(4.0);
 
-    int j;
-    for (uint i=0; i<_point_cloud.size(); i++)
+    uint j;
+    uint len = _point_cloud.size()/3;
+    for (uint i=0; i<len; i++)
     {
         j = i+i+i;
         glBegin (GL_POINTS);
@@ -165,4 +167,7 @@ void GLRenderThread::setPointCloud (vector<float> &point_cloud)
     {
         _point_cloud.push_back(*i);
     }
+
+    QSound ping ("/Users/macbookpro/git/JAPCE/ping.wav");
+    ping.play();
 }
