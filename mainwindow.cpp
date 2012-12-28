@@ -136,7 +136,7 @@ void MainWindow::on_pushButton_2_clicked ()
     vector <float> point_cloud;
     Reconstructor rec; // set the reconstructor up.
     cv::Mat_<double> P1 = (cv::Mat_<double>(3,4) <<  1,0,0,0,  0,1,0,0,  0,0,1,0);
-    cv::Mat_<double> P2 = rec.pickTheRightP (P1, rec.getPCandidatesfromFundamentalMtx ((cv::Mat_<double>)f), (cv::Point2f)points1[2], (cv::Point2f)points2[2]);
+    cv::Mat_<double> P2 = rec.pickTheRightP (P1, rec.getPCandidatesfromFundamentalMtx ((cv::Mat_<double>)f), points1, points2);
     cv::Mat_<double> x1, x2;
     cv::Mat_<double> tmp;
     double* tmpp;
