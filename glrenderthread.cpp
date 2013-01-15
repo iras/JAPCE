@@ -162,7 +162,12 @@ void GLRenderThread::updateZoom (float zoom)
 
 void GLRenderThread::setPointCloud (vector<float> &point_cloud)
 {
-    // replace point cloud
+    // remove old test points.
+    _point_cloud.pop_back();  _point_cloud.pop_back();  _point_cloud.pop_back();
+    _point_cloud.pop_back();  _point_cloud.pop_back();  _point_cloud.pop_back();
+    _point_cloud.pop_back();  _point_cloud.pop_back();  _point_cloud.pop_back();
+
+    // add new point cloud
     for (vector <float>::iterator i=point_cloud.begin(); i!=point_cloud.end(); ++i)
     {
         _point_cloud.push_back(*i);

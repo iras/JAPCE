@@ -67,6 +67,12 @@ void MainWindow::on_pushButton_3_clicked()
 
 void MainWindow::on_pushButton_2_clicked ()
 {
+    image1 = cv::imread ("/Users/macbookpro/Dropbox/OpenCV2cookbook/test_photos/IMG_8018.jpg");
+    cv::cvtColor (image1, image1, CV_BGR2GRAY);
+
+    image2 = cv::imread("/Users/macbookpro/Dropbox/OpenCV2cookbook/test_photos/IMG_8019.jpg");
+    cv::cvtColor (image2, image2, CV_BGR2GRAY);
+
     // set up the robust matcher.
     RobustMatcher rmatcher;
     rmatcher.setConfidenceLevel (0.98);
@@ -127,9 +133,9 @@ void MainWindow::on_pushButton_2_clicked ()
     }
 
     // display images with epipolar lines separately from the main window.
-    cv::namedWindow ("Right Image - Epilines (RANSAC)");
+    //cv::namedWindow ("Right Image - Epilines (RANSAC)");
     cv::imshow ("Right Image Epilines (RANSAC)",image1);
-    cv::namedWindow ("Left Image - Epilines (RANSAC)");
+    //cv::namedWindow ("Left Image - Epilines (RANSAC)");
     cv::imshow ("Left Image Epilines (RANSAC)",image2);
 
     // 3d reconstruction. (point cloud extraction and display)
@@ -140,7 +146,7 @@ void MainWindow::on_pushButton_2_clicked ()
     cv::Mat_<double> x1, x2;
     cv::Mat_<double> tmp;
     double* tmpp;
-    for (uint i=0; i<points1.size(); i++)
+    for (uint i=0; i < points1.size(); i++)
     {
         x1 = (cv::Mat_<double>(3,1) <<  points1[i].x, points1[i].y, 1.0);
         x2 = (cv::Mat_<double>(3,1) <<  points2[i].x, points2[i].y, 1.0);

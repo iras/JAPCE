@@ -115,6 +115,9 @@ cv::Mat_<double> Reconstructor::pickTheRightP (cv::Mat_<double> P1, cv::Mat_<dou
 
     cout << "- pick the right P : INDEX " << index << endl;
 
+    // fixed index value is ONLY for testing purposes.
+    index = 1;
+
     return *(list_possible_P2s+index);
 }
 
@@ -125,9 +128,12 @@ cv::Mat_<double> Reconstructor::triangulate (cv::Mat_<double> x1, cv::Mat_<doubl
 {
     cout << "- triangulate" << endl;
 
+    cv::Mat_<double> x1c = x1.clone();
+    cv::Mat_<double> x2c = x2.clone();
+
     // negate projections, remember that the projections are 2d coords with a 1 as third value.
-    double* x1p=x1.ptr<double>(0);   x1p[0]=-x1p[0]; x1p[1]=-x1p[1]; x1p[2]=-x1p[2];
-    double* x2p=x2.ptr<double>(0);   x2p[0]=-x2p[0]; x2p[1]=-x2p[1]; x2p[2]=-x2p[2];
+    double* x1p=x1c.ptr<double>(0);   x1p[0]=-x1p[0]; x1p[1]=-x1p[1]; x1p[2]=-x1p[2];
+    double* x2p=x2c.ptr<double>(0);   x2p[0]=-x2p[0]; x2p[1]=-x2p[1]; x2p[2]=-x2p[2];
     //double* x1p=(double*)x1.data;   *x1p=-(*x1p); x1p++; *x1p=-(*x1p); x1p++; *x1p=-(*x1p);
     //double* x2p=(double*)x2.data;   *x2p=-(*x2p); x2p++; *x2p=-(*x2p); x2p++; *x2p=-(*x2p);
 
@@ -140,18 +146,21 @@ cv::Mat_<double> Reconstructor::triangulate (cv::Mat_<double> x1, cv::Mat_<doubl
     cv::Mat_<double> aux2 = M.colRange(0,4).rowRange(3,6);  P2.copyTo (aux2);
     cv::Mat_<double> aux3 = M.colRange(4,5).rowRange(0,3);  x1.copyTo (aux3);
     cv::Mat_<double> aux4 = M.colRange(5,6).rowRange(3,6);  x2.copyTo (aux4);
-    cout << "- triangulate : M 6x6 : " << M << endl;
+    //cout << "- triangulate : M 6x6 : " << M << endl;
 
     // solve the system
     //      P1 -x1   0      X
     //      P2   0 -x2      lambda1     =     0
     //                      lambda2
-    // where achieving X is the only goal, not lambda1 neither lambda2.
+    // where X is the only data of interest.
     cv::SVD svd (M);
     cv::Mat_<double> vt = svd.vt;
 
-    cv::Mat_<double> X = (cv::Mat_<double>(4,1) <<  vt.data[0], vt.data[1], vt.data[2], vt.data[3]);
+    cv::Mat_<double> X = (cv::Mat_<double>(4,1) <<  0,0,0,0);
 
-    cout << "- triangulate : X " << X << endl;
+    if (vt.data[33] != 0.0) {X  <<  vt.data[30], vt.data[31], vt.data[32], vt.data[33];}
+    else {cout << " ZEROOOO" << endl;}
+
+    //cout << "- triangulate : X " << X << endl;
     return X;
 }
