@@ -14,7 +14,7 @@ cv::Mat_<double> *Reconstructor::getPCandidatesfromFundamentalMtx (cv::Mat_<doub
     cv::Mat_<double> W = (cv::Mat_<double>(3,3) <<  0,-1,0,  1,0,0,  0,0,1); // orthogonal
     cv::Mat_<double> Z = (cv::Mat_<double>(3,3) <<  0,1,0,  -1,0,0,  0,0,0); // skew-symmetric
 
-    cv::Mat_<double> K = (cv::Mat_<double>(3,3) << 3117.75, 0, 1629.3,   0, 3117.74, 1218.01,  0,0,1);
+    cv::Mat_<double> K = (cv::Mat_<double>(3,3) << 3117.75, 0, 1629.3,   0, 3117.75, 1218.01,   0, 0, 1);
     cv::Mat_<double> Kt  = K.t();
     //cv::Mat_<double> Ki  = K.inv();
     //cv::Mat_<double> Kti = Ki.t());
@@ -63,7 +63,7 @@ cv::Mat_<double> Reconstructor::pickTheRightP (cv::Mat_<double> P1, cv::Mat_<dou
     cv::Mat_<double> rx1;
     cv::Mat_<double> rx2;
 
-    cv::Mat_<double> K = (cv::Mat_<double>(3,3) << 3117.75, 0, 1629.3,   0, 3117.74, 1218.01,  0,0,1);
+    cv::Mat_<double> K = (cv::Mat_<double>(3,3) << 3117.75, 0, 1629.3,   0, 3117.75, 1218.01,  0,0,1);
 
     for (unsigned int i=0; i<4; i++)
     {
@@ -91,8 +91,6 @@ cv::Mat_<double> Reconstructor::pickTheRightP (cv::Mat_<double> P1, cv::Mat_<dou
             //cout << "- pick the right P : post rx2" << endl;
         }
 
-        cout << "- pick the right P : post reprojection" << endl;
-
         double sum_rx1 = 0;
         sum_rx1 = accumulate (rx1_list.begin(), rx1_list.end(), 0);
         //for (vector<double>::iterator k = rx1_list.begin(); k!=rx1_list.end(); ++k)   sum_rx1 += *k;
@@ -116,7 +114,7 @@ cv::Mat_<double> Reconstructor::pickTheRightP (cv::Mat_<double> P1, cv::Mat_<dou
     cout << "- pick the right P : INDEX " << index << endl;
 
     // fixed index value is ONLY for testing purposes.
-    index = 1;
+    index = 0;
 
     return *(list_possible_P2s+index);
 }
@@ -131,11 +129,9 @@ cv::Mat_<double> Reconstructor::triangulate (cv::Mat_<double> x1, cv::Mat_<doubl
     cv::Mat_<double> x1c = x1.clone();
     cv::Mat_<double> x2c = x2.clone();
 
-    // negate projections, remember that the projections are 2d coords with a 1 as third value.
-    double* x1p=x1c.ptr<double>(0);   x1p[0]=-x1p[0]; x1p[1]=-x1p[1]; x1p[2]=-x1p[2];
-    double* x2p=x2c.ptr<double>(0);   x2p[0]=-x2p[0]; x2p[1]=-x2p[1]; x2p[2]=-x2p[2];
-    //double* x1p=(double*)x1.data;   *x1p=-(*x1p); x1p++; *x1p=-(*x1p); x1p++; *x1p=-(*x1p);
-    //double* x2p=(double*)x2.data;   *x2p=-(*x2p); x2p++; *x2p=-(*x2p); x2p++; *x2p=-(*x2p);
+    // negate projections, remember that the projections are 2d coords with an additional value = 1 at the end.
+    double* x1p = x1c.ptr<double>(0);   x1p[0]=-x1p[0]; x1p[1]=-x1p[1]; x1p[2]=-x1p[2];
+    double* x2p = x2c.ptr<double>(0);   x2p[0]=-x2p[0]; x2p[1]=-x2p[1]; x2p[2]=-x2p[2];
 
     // create 6x6 matrix which will then contain
     //      P1 -x1   0
@@ -144,8 +140,8 @@ cv::Mat_<double> Reconstructor::triangulate (cv::Mat_<double> x1, cv::Mat_<doubl
     cv::Mat_<double> M = cv::Mat_<double>::zeros (6,6);
     cv::Mat_<double> aux1 = M.colRange(0,4).rowRange(0,3);  P1.copyTo (aux1);
     cv::Mat_<double> aux2 = M.colRange(0,4).rowRange(3,6);  P2.copyTo (aux2);
-    cv::Mat_<double> aux3 = M.colRange(4,5).rowRange(0,3);  x1.copyTo (aux3);
-    cv::Mat_<double> aux4 = M.colRange(5,6).rowRange(3,6);  x2.copyTo (aux4);
+    cv::Mat_<double> aux3 = M.colRange(4,5).rowRange(0,3);  x1c.copyTo (aux3);
+    cv::Mat_<double> aux4 = M.colRange(5,6).rowRange(3,6);  x2c.copyTo (aux4);
     //cout << "- triangulate : M 6x6 : " << M << endl;
 
     // solve the system
@@ -156,11 +152,8 @@ cv::Mat_<double> Reconstructor::triangulate (cv::Mat_<double> x1, cv::Mat_<doubl
     cv::SVD svd (M);
     cv::Mat_<double> vt = svd.vt;
 
-    cv::Mat_<double> X = (cv::Mat_<double>(4,1) <<  0,0,0,0);
+    double rcpr = 1/vt(5,3);
+    cv::Mat_<double> X = (cv::Mat_<double>(4,1)  <<  vt(5,0)*rcpr, vt(5,1)*rcpr, vt(5,2)*rcpr, vt(5,3)*rcpr);
 
-    if (vt.data[33] != 0.0) {X  <<  vt.data[30], vt.data[31], vt.data[32], vt.data[33];}
-    else {cout << " ZEROOOO" << endl;}
-
-    //cout << "- triangulate : X " << X << endl;
     return X;
 }

@@ -152,6 +152,7 @@ void MainWindow::on_pushButton_2_clicked ()
         x2 = (cv::Mat_<double>(3,1) <<  points2[i].x, points2[i].y, 1.0);
 
         tmp = rec.triangulate (x1, x2, P1, P2);
+
         tmpp = tmp.ptr<double>(0);
         point_cloud.push_back (float(tmpp[0]));
         point_cloud.push_back (float(tmpp[1]));
@@ -162,5 +163,3 @@ void MainWindow::on_pushButton_2_clicked ()
     cout << "- vector point_cloud's size' : " << point_cloud.size() << endl;
     GLFrame_1->displayPointCloud (point_cloud);
 }
-
-
