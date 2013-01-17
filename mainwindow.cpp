@@ -101,15 +101,15 @@ void MainWindow::on_pushButton_2_clicked ()
     vector<cv::Point2f> points1, points2;
     for (vector<cv::DMatch>::const_iterator it=matches.begin(); it!=matches.end(); ++it)
     {
-        float x = keypoints1 [it->queryIdx].pt.x;
-        float y = keypoints1 [it->queryIdx].pt.y;
-        points1.push_back (cv::Point2f(x,y));
-        cv::circle (image1, cv::Point(x,y), 3 ,cv::Scalar(255,255,255), 3);
+        float x1 = keypoints1 [it->queryIdx].pt.x;
+        float y1 = keypoints1 [it->queryIdx].pt.y;
+        points1.push_back (cv::Point2f(x1,y1));
+        cv::circle (image1, cv::Point (x1,y1), 3, cv::Scalar(255,255,255), 3);
 
-        x = keypoints2 [it->trainIdx].pt.x;
-        y = keypoints2 [it->trainIdx].pt.y;
-        points2.push_back (cv::Point2f(x,y));
-        cv::circle (image2, cv::Point(x,y), 3 ,cv::Scalar(255,255,255), 3);
+        float x2 = keypoints2 [it->trainIdx].pt.x;
+        float y2 = keypoints2 [it->trainIdx].pt.y;
+        points2.push_back (cv::Point2f(x2,y2));
+        cv::circle (image2, cv::Point (x2,y2), 3, cv::Scalar(255,255,255), 3);
     }
 
     // draw epipolar lines

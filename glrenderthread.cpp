@@ -8,29 +8,29 @@
 using namespace std;
 
 
-
 GLRenderThread::GLRenderThread (GLFrame *_GLFrame) :
     QThread (),
     GLFrame_var (_GLFrame)
 {
     doRendering = true;
     doResize = false;
-    FrameCounter=0;
+    FrameCounter = 0;
 
     _zoom = -10;
+    _current_mouse_pos = QPoint (0,0);
 
     // added 3 example points
-    _point_cloud.push_back(20.0f);
-    _point_cloud.push_back(0.0f);
-    _point_cloud.push_back(-25.0f);
+    _point_cloud.push_back (20.0f);
+    _point_cloud.push_back (0.0f);
+    _point_cloud.push_back (-25.0f);
 
-    _point_cloud.push_back(20.0f);
-    _point_cloud.push_back(0.0f);
-    _point_cloud.push_back(-15.0f);
+    _point_cloud.push_back (20.0f);
+    _point_cloud.push_back (0.0f);
+    _point_cloud.push_back (-15.0f);
 
-    _point_cloud.push_back(20.0f);
-    _point_cloud.push_back(0.0f);
-    _point_cloud.push_back(-5.0f);
+    _point_cloud.push_back (20.0f);
+    _point_cloud.push_back (0.0f);
+    _point_cloud.push_back (-5.0f);
 }
 
 void GLRenderThread::resizeViewport (const QSize &size)
@@ -52,13 +52,13 @@ void GLRenderThread::run ()
     GLInit ();
 
     while (doRendering)
-        {
+    {
         if (doResize)
-            {
+        {
             GLResize (w, h);
             doResize = false;
-            }
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        }
+        glClear (GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         glLoadIdentity();
 
         paintGL(); // render actual frame
@@ -67,7 +67,7 @@ void GLRenderThread::run ()
         GLFrame_var->swapBuffers();
 
 		msleep (16); // wait 16ms => about 60 FPS
-        }
+    }
 }
 
 
@@ -91,58 +91,141 @@ void GLRenderThread::GLResize (int width, int height)
     glMatrixMode (GL_MODELVIEW);
     glLoadIdentity ();
 
-    gluLookAt (0, 0,-1,  // CameraPosition
-               0, 0 ,0,  // CameraLookAt
-               0, 1 ,0); // CameraUp
+    gluLookAt (0, 0,-1,   // CameraPosition
+               0, 0 ,0,   // CameraLookAt
+               0, 1 ,0);  // CameraUp
 }
 
 void traceGrid ()
 {
-    for(float i = -10; i <= 10; i += 1)
+    // grid
+    for (float i = -10; i <= 10; i += 1)
     {
         glBegin (GL_LINES);
-            glColor3ub (150, 190, 150);
+            glColor3ub (75, 75, 75);
             glVertex3f (-10, 0, i);
             glVertex3f (10, 0, i);
             glVertex3f (i, 0,-10);
             glVertex3f (i, 0, 10);
         glEnd ();
     }
+
+    // contour
+    glBegin (GL_LINES);
+    glColor3ub (45, 45, 45);
+    glVertex3f (-20, -20, 0);
+    glVertex3f (20, -20, 0);
+    glVertex3f (20, -20, 0);
+    glVertex3f (20, 20, 0);
+    glVertex3f (20, 20, 0);
+    glVertex3f (-20, 20, 0);
+    glVertex3f (-20, 20, 0);
+    glVertex3f (-20, -20, 0);
+    glEnd ();
+    glBegin (GL_LINES);
+    glColor3ub (45, 45, 45);
+    glVertex3f (0, -20, -20);
+    glVertex3f (0, 20, -20);
+    glVertex3f (0, 20, -20);
+    glVertex3f (0, 20, 20);
+    glVertex3f (0, 20, 20);
+    glVertex3f (0, -20, 20);
+    glVertex3f (0, -20, 20);
+    glVertex3f (0, -20, -20);
+    glEnd ();
+    glBegin (GL_LINES);
+    glColor3ub (45, 45, 45);
+    glVertex3f (-20, 0, -20);
+    glVertex3f (20, 0, -20);
+    glVertex3f (20, 0, -20);
+    glVertex3f (20, 0, 20);
+    glVertex3f (20, 0, 20);
+    glVertex3f (-20, 0, 20);
+    glVertex3f (-20, 0, 20);
+    glVertex3f (-20, 0, -20);
+    glEnd ();
+    glBegin (GL_LINES);
+    glColor3ub (45, 45, 45);
+    glVertex3f (0, -20, -20);
+    glVertex3f (0, 20, -20);
+    glVertex3f (0, 20, -20);
+    glVertex3f (0, 20, 20);
+    glVertex3f (0, 20, 20);
+    glVertex3f (0, -20, 20);
+    glVertex3f (0, -20, 20);
+    glVertex3f (0, -20, -20);
+    glEnd ();
+
+    // main axis
+    glBegin (GL_LINES);
+    glColor3ub (160, 0, 0);
+    glVertex3f (0, 0, 0);
+    glVertex3f (0, 0, 10);
+    glEnd ();
+    glBegin (GL_LINES);
+    glColor3ub (0, 160, 0);
+    glVertex3f (0, 0, 0);
+    glVertex3f (0, 10, 0);
+    glEnd ();
+    glBegin (GL_LINES);
+    glColor3ub (0, 0, 160);
+    glVertex3f (0, 0, 0);
+    glVertex3f (10, 0, 0);
+    glEnd ();
+    glBegin (GL_LINES);
+    glColor3ub (45, 45, 45);
+    glVertex3f (10, 0, 0);
+    glVertex3f (20, 0, 0);
+    glVertex3f (0, 10, 0);
+    glVertex3f (0, 20, 0);
+    glVertex3f (0, 0, 10);
+    glVertex3f (0, 0, 20);
+    glEnd ();
 }
 
 void GLRenderThread::paintGL (void)
 {
+    _delta = QPoint (0,0);
+
     QPoint q;
     if (GLFrame_var->getCtrlMetaFlag()==true)
     {
         q = _mouse.pos();
+        _delta = q - _last_pos;
         _last_pos = q;
     }
-    q = _last_pos; // this is like that, in case Ctrl or Meta keys are released.
+    else
+    {
+        q = _mouse.pos();
+        _delta = QPoint (0,0);
+        _last_pos = q;
+    }
+
+    _current_mouse_pos += _delta;
 
     //glShadeModel (GL_SMOOTH);
-    glTranslatef (0.0f, 0.0f, -8.0f);           // move 5 units into the screen
-    glRotatef (FrameCounter, 0.0f, q.x() * 0.01f, q.y() * 0.01f);
+    glTranslatef (0.0f, 0.0f, -60.0f);  // move 60 units into the screen
+    glRotatef (FrameCounter, 0.0f, _current_mouse_pos.x() * 0.01f, _current_mouse_pos.y() * 0.01f);
 
     glClear (GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // Clear Z−Buffer
     // Set the camera orientation :
     glMatrixMode (GL_MODELVIEW) ;
     glLoadIdentity ( ) ;
-    gluLookAt (0, 0,-8,  // CameraPosition
-               0, 0 ,0,  // CameraLookAt
-               0, 1 ,0); // CameraUp
+    gluLookAt (0,  0,-60,  // CameraPosition
+               0,  0,  0,  // CameraLookAt
+               0,  1,  0); // CameraUp
 
     // Rotate and zoom camera - Maya-like controls.
     glTranslatef (0, 0, -_zoom);
     // glTranslatef (tx,ty, 0);
     glTranslatef (0, 0, 0);
-    glRotatef (250-q.y() * 0.3f, 1, 0, 0);
-    glRotatef (q.x() * 0.1f, 0, 1, 0);
+    glRotatef (-30 - _current_mouse_pos.y() * 0.15f,  1, 0, 0);
+    glRotatef (-30 + _current_mouse_pos.x() * 0.1f,   0, 1, 0);
 
     traceGrid ();
 
-    glEnable(GL_POINT_SMOOTH);
-    glPointSize(4.0);
+    glEnable (GL_POINT_SMOOTH);
+    glPointSize (4.0);
 
     uint j;
     uint len = _point_cloud.size()/3;

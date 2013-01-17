@@ -10,6 +10,7 @@ using namespace std;
 class GLFrame;
 class QSize;
 
+
 class GLRenderThread : public QThread
 {
     Q_OBJECT
@@ -36,6 +37,8 @@ private:
     GLFrame *GLFrame_var;
 	QCursor _mouse;
     QPoint _last_pos;
+    QPoint _delta;
+    QPoint _current_mouse_pos;
     float _zoom;
 
 signals:
