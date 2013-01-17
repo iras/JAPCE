@@ -158,28 +158,28 @@ void traceGrid ()
 
     // main axis
     glBegin (GL_LINES);
-    glColor3ub (160, 0, 0);
+    glColor3ub (250, 0, 0);
     glVertex3f (0, 0, 0);
     glVertex3f (0, 0, 10);
-    glEnd ();
-    glBegin (GL_LINES);
-    glColor3ub (0, 160, 0);
-    glVertex3f (0, 0, 0);
-    glVertex3f (0, 10, 0);
-    glEnd ();
-    glBegin (GL_LINES);
-    glColor3ub (0, 0, 160);
-    glVertex3f (0, 0, 0);
-    glVertex3f (10, 0, 0);
-    glEnd ();
-    glBegin (GL_LINES);
-    glColor3ub (45, 45, 45);
-    glVertex3f (10, 0, 0);
-    glVertex3f (20, 0, 0);
-    glVertex3f (0, 10, 0);
-    glVertex3f (0, 20, 0);
+    glColor3ub (125, 0, 0);
     glVertex3f (0, 0, 10);
     glVertex3f (0, 0, 20);
+    glEnd ();
+    glBegin (GL_LINES);
+    glColor3ub (0, 250, 0);
+    glVertex3f (0, 0, 0);
+    glVertex3f (0, 10, 0);
+    glColor3ub (0, 125, 0);
+    glVertex3f (0, 10, 0);
+    glVertex3f (0, 20, 0);
+    glEnd ();
+    glBegin (GL_LINES);
+    glColor3ub (0, 0, 250);
+    glVertex3f (0, 0, 0);
+    glVertex3f (10, 0, 0);
+    glColor3ub (0, 0, 125);
+    glVertex3f (10, 0, 0);
+    glVertex3f (20, 0, 0);
     glEnd ();
 }
 
