@@ -20,28 +20,23 @@ cv::Mat_<double> *Reconstructor::getPCandidatesfromFundamentalMtx (cv::Mat_<doub
     //cv::Mat_<double> Kti = Ki.t());
 
     cv::Mat_<double> Ess = Kt * Fund * K;
-
     cv::SVD svd (Ess);
 
-    cv::Mat_<double> S  = svd.u * Z * svd.u.t();
+    cv::Mat_<double> U  = svd.u;
 
-    cv::Mat_<double> R1 = svd.u * W * svd.vt;
-    cv::Mat_<double> R2 = svd.u * W.t() * svd.vt;
-
-    cout << "- get P candidates from Fundamental Mtx - ROTATIONS" << endl;
+    cv::Mat_<double> R1 = U * W * svd.vt;
+    cv::Mat_<double> R2 = U * W.t() * svd.vt;
 
     if (fabsf(cv::determinant (R1))-1.0 > 1e-07) {cout << "det(R1) != +-1.0, this is not a rotation matrix" << endl;}
     if (fabsf(cv::determinant (R2))-1.0 > 1e-07) {cout << "det(R2) != +-1.0, this is not a rotation matrix" << endl;}
 
-    cv::Vec3d t = cv::Vec3d (S(0,2), S(1,2), S(2,2)); // this vector represents the rightmost column of the matrix S. Or, in other words, S*(u3)t.
-
-    cout << "- get P candidates from Fundamental Mtx - TRANSLATIONS" << endl;
+    cv::Vec3d u3 = cv::Vec3d (U(0,2), U(1,2), U(2,2)); // this vector represents the rightmost column of the matrix U. Or, in other words (u3)^t.
 
     static cv::Mat_<double> four_solutions_of_P[4];
-    four_solutions_of_P[0] = (cv::Mat_<double>(3,4)  <<  R1(0,0),R1(0,1),R1(0,2), t(0),  R1(1,0),R1(1,1),R1(1,2), t(1),  R1(2,0),R1(2,1),R1(2,2), t(2));
-    four_solutions_of_P[1] = (cv::Mat_<double>(3,4)  <<  R1(0,0),R1(0,1),R1(0,2),-t(0),  R1(1,0),R1(1,1),R1(1,2),-t(1),  R1(2,0),R1(2,1),R1(2,2),-t(2));
-    four_solutions_of_P[2] = (cv::Mat_<double>(3,4)  <<  R2(0,0),R2(0,1),R2(0,2), t(0),  R2(1,0),R2(1,1),R2(1,2), t(1),  R2(2,0),R2(2,1),R2(2,2), t(2));
-    four_solutions_of_P[3] = (cv::Mat_<double>(3,4)  <<  R2(0,0),R2(0,1),R2(0,2),-t(0),  R2(1,0),R2(1,1),R2(1,2),-t(1),  R2(2,0),R2(2,1),R2(2,2),-t(2));
+    four_solutions_of_P[0] = (cv::Mat_<double>(3,4)  <<  R1(0,0),R1(0,1),R1(0,2), u3(0),  R1(1,0),R1(1,1),R1(1,2), u3(1),  R1(2,0),R1(2,1),R1(2,2), u3(2));
+    four_solutions_of_P[1] = (cv::Mat_<double>(3,4)  <<  R1(0,0),R1(0,1),R1(0,2),-u3(0),  R1(1,0),R1(1,1),R1(1,2),-u3(1),  R1(2,0),R1(2,1),R1(2,2),-u3(2));
+    four_solutions_of_P[2] = (cv::Mat_<double>(3,4)  <<  R2(0,0),R2(0,1),R2(0,2), u3(0),  R2(1,0),R2(1,1),R2(1,2), u3(1),  R2(2,0),R2(2,1),R2(2,2), u3(2));
+    four_solutions_of_P[3] = (cv::Mat_<double>(3,4)  <<  R2(0,0),R2(0,1),R2(0,2),-u3(0),  R2(1,0),R2(1,1),R2(1,2),-u3(1),  R2(2,0),R2(2,1),R2(2,2),-u3(2));
 
     return four_solutions_of_P;
 }
