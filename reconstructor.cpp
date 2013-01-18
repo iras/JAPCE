@@ -14,7 +14,7 @@ cv::Mat_<double> *Reconstructor::getPCandidatesfromFundamentalMtx (cv::Mat_<doub
     cv::Mat_<double> W = (cv::Mat_<double>(3,3) <<  0,-1,0,  1,0,0,  0,0,1); // orthogonal
     cv::Mat_<double> Z = (cv::Mat_<double>(3,3) <<  0,1,0,  -1,0,0,  0,0,0); // skew-symmetric
 
-    cv::Mat_<double> K = (cv::Mat_<double>(3,3) << 3117.75, 0, 1629.3,   0, 3117.75, 1218.01,   0, 0, 1);
+    cv::Mat_<double> K = (cv::Mat_<double>(3,3) << 3117.75, 0, 1629.3,   0, 3117.74, 1218.01,   0, 0, 1);
     cv::Mat_<double> Kt  = K.t();
     //cv::Mat_<double> Ki  = K.inv();
     //cv::Mat_<double> Kti = Ki.t());
@@ -58,7 +58,8 @@ cv::Mat_<double> Reconstructor::pickTheRightP (cv::Mat_<double> P1, cv::Mat_<dou
     cv::Mat_<double> rx1;
     cv::Mat_<double> rx2;
 
-    cv::Mat_<double> K = (cv::Mat_<double>(3,3) << 3117.75, 0, 1629.3,   0, 3117.75, 1218.01,  0,0,1);
+    cv::Mat_<double> K = (cv::Mat_<double>(3,3) << 3117.75, 0, 1629.3,   0, 3117.74, 1218.01,   0, 0, 1);
+    cv::Mat_<double> Kinv = K.inv();
 
     for (unsigned int i=0; i<4; i++)
     {
@@ -69,6 +70,9 @@ cv::Mat_<double> Reconstructor::pickTheRightP (cv::Mat_<double> P1, cv::Mat_<dou
         {
             x1 = (cv::Mat_<double>(3,1) <<  points1[j].x, points1[j].y, 1.0);
             x2 = (cv::Mat_<double>(3,1) <<  points2[j].x, points2[j].y, 1.0);
+
+            //x1 = Kinv * x1;
+            //x2 = Kinv * x2;
 
             X = this->triangulate (x1, x2, P1, *(list_possible_P2s+i));
             X_list.push_back (X);
@@ -121,8 +125,11 @@ cv::Mat_<double> Reconstructor::triangulate (cv::Mat_<double> x1, cv::Mat_<doubl
 {
     cout << "- triangulate" << endl;
 
-    cv::Mat_<double> x1c = x1.clone();
-    cv::Mat_<double> x2c = x2.clone();
+    cv::Mat_<double> K = (cv::Mat_<double>(3,3) << 3117.75, 0, 1629.3,   0, 3117.74, 1218.01,   0, 0, 1);
+    cv::Mat_<double> Kinv = K.inv();
+
+    cv::Mat_<double> x1c = Kinv * x1.clone();
+    cv::Mat_<double> x2c = Kinv * x2.clone();
 
     // negate projections, remember that the projections are 2d coords with an additional value = 1 at the end.
     double* x1p = x1c.ptr<double>(0);   x1p[0]=-x1p[0]; x1p[1]=-x1p[1]; x1p[2]=-x1p[2];
