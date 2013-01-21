@@ -67,18 +67,12 @@ void MainWindow::on_pushButton_3_clicked()
 
 void MainWindow::on_pushButton_2_clicked ()
 {
-    image1 = cv::imread ("/Users/macbookpro/Dropbox/OpenCV2cookbook/test_photos/IMG_8018.jpg");
-    cv::cvtColor (image1, image1, CV_BGR2GRAY);
-
-    image2 = cv::imread("/Users/macbookpro/Dropbox/OpenCV2cookbook/test_photos/IMG_8019.jpg");
-    cv::cvtColor (image2, image2, CV_BGR2GRAY);
-
     // set up the robust matcher.
     RobustMatcher rmatcher;
     rmatcher.setConfidenceLevel (0.98);
     rmatcher.setMinDistanceToEpipolar (1.0);
     rmatcher.setRatio (0.65f);
-    cv::Ptr<cv::FeatureDetector> pfd = new cv::SurfFeatureDetector (10);
+    cv::Ptr<cv::FeatureDetector> pfd = new cv::SurfFeatureDetector (1);
     rmatcher.setFeatureDetector (pfd);
 
     // match two images

@@ -113,7 +113,7 @@ cv::Mat_<double> Reconstructor::pickTheRightP (cv::Mat_<double> P1, cv::Mat_<dou
     cout << "- pick the right P : INDEX " << index << endl;
 
     // fixed index value is ONLY for testing purposes.
-    index = 0;
+    index = 2;
 
     return *(list_possible_P2s+index);
 }
@@ -123,8 +123,6 @@ cv::Mat_<double> Reconstructor::pickTheRightP (cv::Mat_<double> P1, cv::Mat_<dou
 // Point pair triangulation from least squares solution.
 cv::Mat_<double> Reconstructor::triangulate (cv::Mat_<double> x1, cv::Mat_<double> x2, cv::Mat_<double> P1, cv::Mat_<double> P2)
 {
-    cout << "- triangulate" << endl;
-
     cv::Mat_<double> K = (cv::Mat_<double>(3,3) << 3117.75, 0, 1629.3,   0, 3117.74, 1218.01,   0, 0, 1);
     cv::Mat_<double> Kinv = K.inv();
 

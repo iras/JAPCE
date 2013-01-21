@@ -7,4 +7,6 @@ JA-series Point Cloud Extractor written in C++ and Qt Framework using openCV and
 
 The intrinsic matrix (camera calibration) is temporarily set to the iPhone4S camera's lens.
 
+Using Laganiere's robust matcher at the moment. Switching to the optical flow's one soon.
+
 Work in progress !
