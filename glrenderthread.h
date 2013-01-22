@@ -3,8 +3,12 @@
 
 #include <QThread>
 #include <QtGui/QCursor>
+#include <QtGui/QVector3D>
 #include <vector>
 #include <iostream>
+
+#include "/System/Library/Frameworks/GLUT.framework/Versions/A/Headers/glut.h"
+
 using namespace std;
 
 class GLFrame;
@@ -20,7 +24,7 @@ public:
     void resizeViewport (const QSize &size);
     void run  (void);
     void stop (void);
-    void updateZoom (float zoom);
+    void updateCameraDistanceFromCenter (float zoom);
 
     void setPointCloud (vector<float> &point_cloud);
     vector<float> _point_cloud;
@@ -38,8 +42,13 @@ private:
 	QCursor _mouse;
     QPoint _last_pos;
     QPoint _delta;
-    QPoint _current_mouse_pos;
+    QPoint _current_angles;
+    QVector3D _o;
     float _zoom;
+    GLfloat m[16];
+
+    void traceGrid (void);
+    void traceCurrentOrigin (void);
 
 signals:
 public slots:

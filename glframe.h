@@ -17,6 +17,7 @@ public:
     void stopRenderThread (void);
 
     bool getCtrlMetaFlag ();
+    bool getAltFlag ();
     void displayPointCloud (vector<float> &point_cloud);
 
 signals:
@@ -33,6 +34,7 @@ protected:
 
     GLRenderThread RenderThread;
     bool Ctrl_or_Meta_key_pressed;
+    bool Alt_key_pressed;
 
 private:
 
