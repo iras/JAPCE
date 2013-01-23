@@ -82,8 +82,11 @@ void MainWindow::on_pushButton_2_clicked ()
 
     // plot the matches
     cv::Mat imageMatches;
+    // change the images format to BGR otherwise we can't see points in red.
+    cv::cvtColor (image1, image1, CV_GRAY2BGR);
+    cv::cvtColor (image2, image2, CV_GRAY2BGR);
     //               1st image + keypoints  2nd image + keypoints  matches   achieved image   lines colour
-    cv::drawMatches (image1, keypoints1,    image2, keypoints2,    matches,  imageMatches,    cv::Scalar (255,255,255));
+    cv::drawMatches (image1, keypoints1,    image2, keypoints2,    matches,  imageMatches,    cv::Scalar (200,200,0));
     /*
     // place Qt image.
     QImage img = QImage ((uchar*)imageMatches.data, imageMatches.cols, imageMatches.rows, imageMatches.step, QImage::Format_RGB888 );
@@ -98,12 +101,12 @@ void MainWindow::on_pushButton_2_clicked ()
         float x1 = keypoints1 [it->queryIdx].pt.x;
         float y1 = keypoints1 [it->queryIdx].pt.y;
         points1.push_back (cv::Point2f(x1,y1));
-        cv::circle (image1, cv::Point (x1,y1), 3, cv::Scalar(255,255,255), 3);
+        cv::circle (image1, cv::Point (x1,y1), 4, cv::Scalar(0,0,255), 3); // B G R
 
         float x2 = keypoints2 [it->trainIdx].pt.x;
         float y2 = keypoints2 [it->trainIdx].pt.y;
         points2.push_back (cv::Point2f(x2,y2));
-        cv::circle (image2, cv::Point (x2,y2), 3, cv::Scalar(255,255,255), 3);
+        cv::circle (image2, cv::Point (x2,y2), 4, cv::Scalar(0,0,255), 3); // B G R
     }
 
     // draw epipolar lines
@@ -114,7 +117,7 @@ void MainWindow::on_pushButton_2_clicked ()
     {
         cv::line (image2,cv::Point(0,-(*it)[2]/(*it)[1]),
         cv::Point (image2.cols,-((*it)[2]+(*it)[0]*image2.cols)/(*it)[1]),
-        cv::Scalar (255,255,255));
+        cv::Scalar (100,160,100));
     }
     // 2nd image
     vector<cv::Vec3f> lines2;
@@ -123,8 +126,9 @@ void MainWindow::on_pushButton_2_clicked ()
     {
         cv::line (image1,cv::Point(0,-(*it)[2]/(*it)[1]),
         cv::Point (image1.cols,-((*it)[2]+(*it)[0]*image1.cols)/(*it)[1]),
-        cv::Scalar (255,255,255));
+        cv::Scalar (100,150,100));
     }
+
 
     // display images with epipolar lines separately from the main window.
     //cv::namedWindow ("Right Image - Epilines (RANSAC)");
