@@ -17,6 +17,14 @@ MainWindow::MainWindow (QWidget *parent) :
     GLFrame_1 = new GLFrame ();
     ui->verticalLayout->addWidget (GLFrame_1);
     GLFrame_1->initRenderThread();
+
+    // setting the ending sound up.
+    _ping = new QSound ("/Users/macbookpro/git/JAPCE/ping.wav");
+    _ping->setLoops (1);
+
+     ui->label_2->setText ("none yet");
+     //ui->label_3->setText ("none yet");
+     //ui->label_5->setText ("none yet");
 }
 
 MainWindow::~MainWindow()
@@ -112,7 +120,7 @@ void MainWindow::on_pushButton_2_clicked ()
     // draw epipolar lines
     // 1st image
     vector<cv::Vec3f> lines1;
-    cv::computeCorrespondEpilines (cv::Mat(points1),1,f,lines1);
+    cv::computeCorrespondEpilines (cv::Mat(points1), 1, f, lines1);
     for (vector<cv::Vec3f>::const_iterator it= lines1.begin(); it!=lines1.end(); ++it)
     {
         cv::line (image2,cv::Point(0,-(*it)[2]/(*it)[1]),
@@ -128,7 +136,6 @@ void MainWindow::on_pushButton_2_clicked ()
         cv::Point (image1.cols,-((*it)[2]+(*it)[0]*image1.cols)/(*it)[1]),
         cv::Scalar (100,150,100));
     }
-
 
     // display images with epipolar lines separately from the main window.
     //cv::namedWindow ("Right Image - Epilines (RANSAC)");
@@ -157,7 +164,11 @@ void MainWindow::on_pushButton_2_clicked ()
         point_cloud.push_back (float(tmpp[2]));
     }
 
-    cout << "- size of resulting point cloud : " << points1.size() << endl;
-    cout << "- vector point_cloud's size' : " << point_cloud.size() << endl;
+    ui->label_2->setText ("<b>"+QString::number (points1.size())+"</b>");
+
     GLFrame_1->displayPointCloud (point_cloud);
+    GLFrame_1->DelegateCameraPyramidAddition (P1, image1.rows, image1.cols);
+    GLFrame_1->DelegateCameraPyramidAddition (P2, image1.rows, image1.cols);
+
+    _ping->play ();
 }

@@ -5,6 +5,7 @@
 #include "glrenderthread.h"
 #include <iostream>
 #include <vector>
+#include <opencv2/core/core.hpp>
 using namespace std;
 
 class GLFrame : public QGLWidget
@@ -18,7 +19,9 @@ public:
 
     bool getCtrlMetaFlag ();
     bool getAltFlag ();
+
     void displayPointCloud (vector<float> &point_cloud);
+    void DelegateCameraPyramidAddition  (cv::Mat_<double> &camera_matrix, int rows, int cols);
 
 signals:
 

@@ -5,12 +5,16 @@
 #include <vector>
 #include <QtGui/QMainWindow>
 #include <QtGui/QFileDialog>
+#include <QSound>
+
+// usual OpenCV imports
+
 #include <opencv2/core/core.hpp>
 #include <opencv2/highgui/highgui.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
 #include <opencv2/features2d/features2d.hpp>
 
-// NEW IMPORTS in OpenCV 2.4.2
+// NEW IMPORTS in OpenCV 2.4.3
 
 #include "opencv2/nonfree/nonfree.hpp"
 #include "opencv2/nonfree/features2d.hpp"
@@ -23,6 +27,8 @@ namespace Ui
 {
     class MainWindow;
 }
+
+
 
 class MainWindow : public QMainWindow
 {
@@ -43,6 +49,8 @@ private:
 
     cv::Mat image1;
     cv::Mat image2;
+
+    QSound *_ping;
 
 protected:
     void closeEvent (QCloseEvent *evt);

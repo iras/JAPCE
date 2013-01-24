@@ -113,7 +113,7 @@ cv::Mat_<double> Reconstructor::pickTheRightP (cv::Mat_<double> P1, cv::Mat_<dou
     cout << "- pick the right P : INDEX " << index << endl;
 
     // fixed index value is ONLY for testing purposes.
-    index = 2;
+    index = 0;
 
     return *(list_possible_P2s+index);
 }

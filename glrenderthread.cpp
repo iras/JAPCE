@@ -3,7 +3,6 @@
 #include <math.h>
 
 #include <iostream>
-#include <QSound>
 using namespace std;
 
 
@@ -35,6 +34,8 @@ GLRenderThread::GLRenderThread (GLFrame *_GLFrame) :
     _point_cloud.push_back (20.0f);
     _point_cloud.push_back (0.0f);
     _point_cloud.push_back (-5.0f);
+
+
 }
 
 void GLRenderThread::resizeViewport (const QSize &size)
@@ -212,6 +213,63 @@ void GLRenderThread::traceCurrentOrigin (void)
     glEnd ();
 }
 
+void GLRenderThread::addCameraPyramid  (cv::Mat_<double> &camera_matrix, int rows, int cols)
+{
+    double rh = rows / 2;
+    double ch = cols / 2;
+    double depth = 30.0;
+
+    cv::Mat_<double> p0 = (cv::Mat_<double>(4,1) <<  0.0, 0.0,  0.0,  1.0);
+    cv::Mat_<double> p1 = (cv::Mat_<double>(4,1) <<  -rh, -ch, depth, 1.0);
+    cv::Mat_<double> p2 = (cv::Mat_<double>(4,1) <<  -rh,  ch, depth, 1.0);
+    cv::Mat_<double> p3 = (cv::Mat_<double>(4,1) <<   rh,  ch, depth, 1.0);
+    cv::Mat_<double> p4 = (cv::Mat_<double>(4,1) <<   rh, -ch, depth, 1.0);
+
+    p0 = camera_matrix * p0;
+    p1 = camera_matrix * p1;
+    p2 = camera_matrix * p2;
+    p3 = camera_matrix * p3;
+    p4 = camera_matrix * p4;
+
+    vector<cv::Mat_<double> > camera_pyramid;
+    camera_pyramid.push_back (p0);
+    camera_pyramid.push_back (p1);
+    camera_pyramid.push_back (p2);
+    camera_pyramid.push_back (p3);
+    camera_pyramid.push_back (p4);
+
+    camera_pyramids.push_back (camera_pyramid);
+}
+
+void GLRenderThread::displayCameraPyramids  (void)
+{
+    unsigned int len = camera_pyramids.size();
+
+    for (unsigned int i=0; i<len; i++)
+    {
+        vector <cv::Mat_<double> > cp;
+        cp = camera_pyramids[i];
+
+        // camera pyramid
+        glBegin (GL_LINES);
+        glColor3ub (150, 150, 0);
+        glVertex3f (cp[0].data[0], cp[0].data[1], cp[0].data[2]);
+        glVertex3f (cp[1].data[0], cp[1].data[1], cp[1].data[2]);
+        glVertex3f (cp[1].data[0], cp[1].data[1], cp[1].data[2]);
+        glVertex3f (cp[2].data[0], cp[2].data[1], cp[2].data[2]);
+        glVertex3f (cp[2].data[0], cp[2].data[1], cp[2].data[2]);
+        glVertex3f (cp[3].data[0], cp[3].data[1], cp[3].data[2]);
+        glVertex3f (cp[4].data[0], cp[4].data[1], cp[4].data[2]);
+        glVertex3f (cp[4].data[0], cp[4].data[1], cp[4].data[2]);
+        glVertex3f (cp[0].data[0], cp[0].data[1], cp[0].data[2]);
+        glVertex3f (cp[2].data[0], cp[2].data[1], cp[2].data[2]);
+        glVertex3f (cp[0].data[0], cp[0].data[1], cp[0].data[2]);
+        glVertex3f (cp[3].data[0], cp[3].data[1], cp[3].data[2]);
+        glVertex3f (cp[0].data[0], cp[0].data[1], cp[0].data[2]);
+        glEnd ();
+    }
+}
+
 void GLRenderThread::paintGL (void)
 {
     _delta = QPoint (0,0);
@@ -276,6 +334,7 @@ void GLRenderThread::paintGL (void)
     // dispaly grid and current origin.
     this->traceGrid ();
     this->traceCurrentOrigin ();
+    this->displayCameraPyramids ();
 
     // display the point cloud
     glEnable (GL_POINT_SMOOTH);
@@ -308,7 +367,4 @@ void GLRenderThread::setPointCloud (vector<float> &point_cloud)
     {
         _point_cloud.push_back(*i);
     }
-
-    QSound ping ("/Users/macbookpro/git/JAPCE/ping.wav");
-    ping.play();
 }

@@ -6,6 +6,7 @@
 #include <QtGui/QVector3D>
 #include <vector>
 #include <iostream>
+#include <opencv2/core/core.hpp>
 
 #include "/System/Library/Frameworks/GLUT.framework/Versions/A/Headers/glut.h"
 
@@ -26,8 +27,9 @@ public:
     void stop (void);
     void updateCameraDistanceFromCenter (float zoom);
 
-    void setPointCloud (vector<float> &point_cloud);
     vector<float> _point_cloud;
+    void setPointCloud (vector<float> &point_cloud);
+    void addCameraPyramid  (cv::Mat_<double> &camera_matrix, int rows, int cols);
 
 protected:
     void GLInit   (void);
@@ -49,6 +51,9 @@ private:
 
     void traceGrid (void);
     void traceCurrentOrigin (void);
+    void displayCameraPyramids (void);
+
+    vector<vector<cv::Mat_<double> > > camera_pyramids;
 
 signals:
 public slots:

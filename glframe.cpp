@@ -35,6 +35,13 @@ void GLFrame::displayPointCloud (vector<float> &point_cloud)
     RenderThread.setPointCloud (point_cloud);
 }
 
+void GLFrame::DelegateCameraPyramidAddition  (cv::Mat_<double> &camera_matrix, int rows, int cols)
+{
+    RenderThread.addCameraPyramid (camera_matrix, rows, cols);
+}
+
+////////////////
+
 void GLFrame::resizeEvent (QResizeEvent *event)
 {
     RenderThread.resizeViewport (event->size());
