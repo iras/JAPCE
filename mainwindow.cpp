@@ -3,9 +3,8 @@
 #include "ui_mainwindow.h"
 #include "reconstructor.h"
 #include "glframe.h"
-#include <iostream>
-#include <vector>
 using namespace std;
+
 
 
 MainWindow::MainWindow (QWidget *parent) :
@@ -25,6 +24,7 @@ MainWindow::MainWindow (QWidget *parent) :
      ui->label_2->setText ("none yet");
      //ui->label_3->setText ("none yet");
      //ui->label_5->setText ("none yet");
+     ui->label_8->setText ("-");
 }
 
 MainWindow::~MainWindow()
@@ -75,6 +75,9 @@ void MainWindow::on_pushButton_3_clicked()
 
 void MainWindow::on_pushButton_2_clicked ()
 {
+    _start = clock();
+    ui->label_8->setText ("-");
+
     // set up the robust matcher.
     RobustMatcher rmatcher;
     rmatcher.setConfidenceLevel (0.98);
@@ -164,6 +167,15 @@ void MainWindow::on_pushButton_2_clicked ()
         point_cloud.push_back (float(tmpp[2]));
     }
 
+
+
+    // Statistics Visualisation
+
+    // display the execution time
+    _stop = clock();
+    ui->label_8->setText (QString::number((_stop - _start)/CLOCKS_PER_SEC));
+
+    // display no. of tracked points
     ui->label_2->setText ("<b>"+QString::number (points1.size())+"</b>");
 
     GLFrame_1->displayPointCloud (point_cloud);

@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading UI file 'mainwindow.ui'
 **
-** Created: Thu Jan 24 13:39:24 2013
+** Created: Thu Jan 24 14:08:32 2013
 **      by: Qt User Interface Compiler version 4.8.4
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
@@ -47,6 +47,8 @@ public:
     QLabel *label_4;
     QLabel *label_5;
     QLabel *label_6;
+    QLabel *label_7;
+    QLabel *label_8;
     QMenuBar *menuBar;
     QToolBar *mainToolBar;
     QStatusBar *statusBar;
@@ -151,6 +153,22 @@ public:
         label_6->setObjectName(QString::fromUtf8("label_6"));
         label_6->setGeometry(QRect(10, 40, 91, 16));
         label_6->setFont(font);
+        label_7 = new QLabel(groupBox_3);
+        label_7->setObjectName(QString::fromUtf8("label_7"));
+        label_7->setGeometry(QRect(10, 80, 91, 16));
+        label_7->setFont(font);
+        label_8 = new QLabel(groupBox_3);
+        label_8->setObjectName(QString::fromUtf8("label_8"));
+        label_8->setGeometry(QRect(100, 80, 101, 16));
+        QPalette palette3;
+        palette3.setBrush(QPalette::Active, QPalette::WindowText, brush);
+        palette3.setBrush(QPalette::Active, QPalette::Text, brush1);
+        palette3.setBrush(QPalette::Inactive, QPalette::WindowText, brush);
+        palette3.setBrush(QPalette::Inactive, QPalette::Text, brush2);
+        palette3.setBrush(QPalette::Disabled, QPalette::WindowText, brush2);
+        palette3.setBrush(QPalette::Disabled, QPalette::Text, brush2);
+        label_8->setPalette(palette3);
+        label_8->setFont(font);
         MainWindow->setCentralWidget(centralWidget);
         menuBar = new QMenuBar(MainWindow);
         menuBar->setObjectName(QString::fromUtf8("menuBar"));
@@ -187,6 +205,8 @@ public:
         label_4->setText(QApplication::translate("MainWindow", "Tracked Points :", 0, QApplication::UnicodeUTF8));
         label_5->setText(QString());
         label_6->setText(QApplication::translate("MainWindow", "SURF points (2) :", 0, QApplication::UnicodeUTF8));
+        label_7->setText(QApplication::translate("MainWindow", "execution time :", 0, QApplication::UnicodeUTF8));
+        label_8->setText(QString());
     } // retranslateUi
 
 };

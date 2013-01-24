@@ -6,6 +6,7 @@
 #include <QtGui/QMainWindow>
 #include <QtGui/QFileDialog>
 #include <QSound>
+#include <time.h>
 
 // usual OpenCV imports
 
@@ -51,6 +52,9 @@ private:
     cv::Mat image2;
 
     QSound *_ping;
+
+    clock_t _start;
+    clock_t _stop;
 
 protected:
     void closeEvent (QCloseEvent *evt);
