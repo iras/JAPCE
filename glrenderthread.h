@@ -49,8 +49,8 @@ private:
     float _zoom;
     GLfloat m[16];
 
-    void traceGrid (void);
-    void traceCurrentOrigin (void);
+    void drawGrid (void);
+    void drawCurrentOriginAxes (void);
     void displayCameraPyramids (void);
 
     vector<vector<cv::Mat_<double> > > camera_pyramids;

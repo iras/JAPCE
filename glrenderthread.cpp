@@ -101,7 +101,7 @@ void GLRenderThread::GLResize (int width, int height)
                0, 1 ,0);  // CameraUp
 }
 
-void GLRenderThread::traceGrid (void)
+void GLRenderThread::drawGrid (void)
 {
     // grid
     for (float i = -10; i <= 10; i += 1)
@@ -188,7 +188,7 @@ void GLRenderThread::traceGrid (void)
     glEnd ();
 }
 
-void GLRenderThread::traceCurrentOrigin (void)
+void GLRenderThread::drawCurrentOriginAxes (void)
 {
     glPointSize (6.0);
     glBegin (GL_POINTS);
@@ -215,28 +215,34 @@ void GLRenderThread::traceCurrentOrigin (void)
 
 void GLRenderThread::addCameraPyramid  (cv::Mat_<double> &camera_matrix, int rows, int cols)
 {
-    double rh = rows / 2;
-    double ch = cols / 2;
-    double depth = 30.0;
+    double rh = rows / 1500;
+    double ch = cols / 1500;
+    double depth = 3.0;
 
     cv::Mat_<double> p0 = (cv::Mat_<double>(4,1) <<  0.0, 0.0,  0.0,  1.0);
-    cv::Mat_<double> p1 = (cv::Mat_<double>(4,1) <<  -rh, -ch, depth, 1.0);
-    cv::Mat_<double> p2 = (cv::Mat_<double>(4,1) <<  -rh,  ch, depth, 1.0);
-    cv::Mat_<double> p3 = (cv::Mat_<double>(4,1) <<   rh,  ch, depth, 1.0);
-    cv::Mat_<double> p4 = (cv::Mat_<double>(4,1) <<   rh, -ch, depth, 1.0);
+    cv::Mat_<double> p1 = (cv::Mat_<double>(4,1) <<  -ch, -rh, depth, 1.0);
+    cv::Mat_<double> p2 = (cv::Mat_<double>(4,1) <<  -ch,  rh, depth, 1.0);
+    cv::Mat_<double> p3 = (cv::Mat_<double>(4,1) <<   ch,  rh, depth, 1.0);
+    cv::Mat_<double> p4 = (cv::Mat_<double>(4,1) <<   ch, -rh, depth, 1.0);
 
-    p0 = camera_matrix * p0;
-    p1 = camera_matrix * p1;
-    p2 = camera_matrix * p2;
-    p3 = camera_matrix * p3;
-    p4 = camera_matrix * p4;
+    cv::Mat_<double> pp0 = (cv::Mat_<double>(3,1) <<  0.0, 0.0,  0.0);
+    cv::Mat_<double> pp1 = (cv::Mat_<double>(3,1) <<  0.0, 0.0,  0.0);
+    cv::Mat_<double> pp2 = (cv::Mat_<double>(3,1) <<  0.0, 0.0,  0.0);
+    cv::Mat_<double> pp3 = (cv::Mat_<double>(3,1) <<  0.0, 0.0,  0.0);
+    cv::Mat_<double> pp4 = (cv::Mat_<double>(3,1) <<  0.0, 0.0,  0.0);
+
+    pp0 = camera_matrix * p0;
+    pp1 = camera_matrix * p1;
+    pp2 = camera_matrix * p2;
+    pp3 = camera_matrix * p3;
+    pp4 = camera_matrix * p4;
 
     vector<cv::Mat_<double> > camera_pyramid;
-    camera_pyramid.push_back (p0);
-    camera_pyramid.push_back (p1);
-    camera_pyramid.push_back (p2);
-    camera_pyramid.push_back (p3);
-    camera_pyramid.push_back (p4);
+    camera_pyramid.push_back (pp0);
+    camera_pyramid.push_back (pp1);
+    camera_pyramid.push_back (pp2);
+    camera_pyramid.push_back (pp3);
+    camera_pyramid.push_back (pp4);
 
     camera_pyramids.push_back (camera_pyramid);
 }
@@ -244,7 +250,6 @@ void GLRenderThread::addCameraPyramid  (cv::Mat_<double> &camera_matrix, int row
 void GLRenderThread::displayCameraPyramids  (void)
 {
     unsigned int len = camera_pyramids.size();
-
     for (unsigned int i=0; i<len; i++)
     {
         vector <cv::Mat_<double> > cp;
@@ -253,19 +258,29 @@ void GLRenderThread::displayCameraPyramids  (void)
         // camera pyramid
         glBegin (GL_LINES);
         glColor3ub (150, 150, 0);
-        glVertex3f (cp[0].data[0], cp[0].data[1], cp[0].data[2]);
-        glVertex3f (cp[1].data[0], cp[1].data[1], cp[1].data[2]);
-        glVertex3f (cp[1].data[0], cp[1].data[1], cp[1].data[2]);
-        glVertex3f (cp[2].data[0], cp[2].data[1], cp[2].data[2]);
-        glVertex3f (cp[2].data[0], cp[2].data[1], cp[2].data[2]);
-        glVertex3f (cp[3].data[0], cp[3].data[1], cp[3].data[2]);
-        glVertex3f (cp[4].data[0], cp[4].data[1], cp[4].data[2]);
-        glVertex3f (cp[4].data[0], cp[4].data[1], cp[4].data[2]);
-        glVertex3f (cp[0].data[0], cp[0].data[1], cp[0].data[2]);
-        glVertex3f (cp[2].data[0], cp[2].data[1], cp[2].data[2]);
-        glVertex3f (cp[0].data[0], cp[0].data[1], cp[0].data[2]);
-        glVertex3f (cp[3].data[0], cp[3].data[1], cp[3].data[2]);
-        glVertex3f (cp[0].data[0], cp[0].data[1], cp[0].data[2]);
+        glVertex3f (cp[0](0), cp[0](1), cp[0](2));
+        glVertex3f (cp[1](0), cp[1](1), cp[1](2));
+
+        glVertex3f (cp[1](0), cp[1](1), cp[1](2));
+        glVertex3f (cp[2](0), cp[2](1), cp[2](2));
+
+        glVertex3f (cp[2](0), cp[2](1), cp[2](2));
+        glVertex3f (cp[3](0), cp[3](1), cp[3](2));
+
+        glVertex3f (cp[3](0), cp[3](1), cp[3](2));
+        glVertex3f (cp[4](0), cp[4](1), cp[4](2));
+
+        glVertex3f (cp[4](0), cp[4](1), cp[4](2));
+        glVertex3f (cp[1](0), cp[1](1), cp[1](2));
+
+        glVertex3f (cp[0](0), cp[0](1), cp[0](2));
+        glVertex3f (cp[2](0), cp[2](1), cp[2](2));
+
+        glVertex3f (cp[0](0), cp[0](1), cp[0](2));
+        glVertex3f (cp[3](0), cp[3](1), cp[3](2));
+
+        glVertex3f (cp[0](0), cp[0](1), cp[0](2));
+        glVertex3f (cp[4](0), cp[4](1), cp[4](2));
         glEnd ();
     }
 }
@@ -332,8 +347,8 @@ void GLRenderThread::paintGL (void)
     glGetFloatv (GL_MODELVIEW_MATRIX, m);
 
     // dispaly grid and current origin.
-    this->traceGrid ();
-    this->traceCurrentOrigin ();
+    this->drawGrid ();
+    this->drawCurrentOriginAxes ();
     this->displayCameraPyramids ();
 
     // display the point cloud

@@ -75,6 +75,7 @@ void MainWindow::on_pushButton_3_clicked()
 
 void MainWindow::on_pushButton_2_clicked ()
 {
+    // take the time
     _start = clock();
     ui->label_8->setText ("-");
 
@@ -83,7 +84,7 @@ void MainWindow::on_pushButton_2_clicked ()
     rmatcher.setConfidenceLevel (0.98);
     rmatcher.setMinDistanceToEpipolar (1.0);
     rmatcher.setRatio (0.65f);
-    cv::Ptr<cv::FeatureDetector> pfd = new cv::SurfFeatureDetector (1);
+    cv::Ptr<cv::FeatureDetector> pfd = new cv::SurfFeatureDetector(10);
     rmatcher.setFeatureDetector (pfd);
 
     // match two images
@@ -169,11 +170,12 @@ void MainWindow::on_pushButton_2_clicked ()
 
 
 
-    // Statistics Visualisation
+    // data visualisation + statistics
+    // ---------------------------------
 
     // display the execution time
     _stop = clock();
-    ui->label_8->setText (QString::number((_stop - _start)/CLOCKS_PER_SEC));
+    ui->label_8->setText (QString::number ((_stop - _start)/(CLOCKS_PER_SEC)*60));
 
     // display no. of tracked points
     ui->label_2->setText ("<b>"+QString::number (points1.size())+"</b>");

@@ -156,7 +156,7 @@ class RobustMatcher
         {
             // Convert keypoints into Point2f
             vector<cv::Point2f> points1, points2;
-            for (vector<cv::DMatch>::const_iterator it= matches.begin(); it!= matches.end(); ++it)
+            for (vector<cv::DMatch>::const_iterator it = matches.begin(); it != matches.end(); ++it)
             {
                 // Get the position of left keypoints
                 float x= keypoints1[it->queryIdx].pt.x;
@@ -169,13 +169,12 @@ class RobustMatcher
             }
 
             // Compute F matrix using RANSAC
-            vector<uchar> inliers (points1.size(),0);
-            cv::Mat f= cv::findFundamentalMat (
-                        cv::Mat (points1),cv::Mat (points2), // matching points
-                        inliers,      // match status (inlier ou outlier)
-                        CV_FM_RANSAC, // RANSAC method
-                        distance,     // distance to epipolar line
-                        confidence);  // confidence probability
+            vector<uchar> inliers (points1.size(), 0);
+            cv::Mat f= cv::findFundamentalMat (cv::Mat (points1),cv::Mat (points2), // matching points
+                                               inliers,      // match status (inlier ou outlier)
+                                               CV_FM_RANSAC, // RANSAC method
+                                               distance,     // distance to epipolar line
+                                               confidence);  // confidence probability
 
             // extract the surviving (inliers) matches
             vector<uchar>::const_iterator itIn= inliers.begin();
@@ -204,17 +203,16 @@ class RobustMatcher
                     // Get the position of left keypoints
                     float x= keypoints1[it->queryIdx].pt.x;
                     float y= keypoints1[it->queryIdx].pt.y;
-                    points1.push_back(cv::Point2f(x,y));
+                    points1.push_back(cv::Point2f (x,y));
                     // Get the position of right keypoints
                     x= keypoints2[it->trainIdx].pt.x;
                     y= keypoints2[it->trainIdx].pt.y;
-                    points2.push_back(cv::Point2f(x,y));
+                    points2.push_back(cv::Point2f (x,y));
                 }
 
                 // Compute 8-point F from all accepted matches
-                f= cv::findFundamentalMat (
-                            cv::Mat (points1),cv::Mat (points2), // matching points
-                            CV_FM_8POINT); // 8-point method
+                f= cv::findFundamentalMat (cv::Mat (points1),cv::Mat (points2), // matching points
+                                           CV_FM_8POINT);                       // 8-point method
             }
 
             return f;
@@ -240,6 +238,8 @@ class RobustMatcher
 
             cout << "descriptor matrix size: " << descriptors1.rows << " by " << descriptors1.cols << endl;
 
+
+
             // 2. Match the two image descriptors
 
             // Construction of the matcher
@@ -248,19 +248,21 @@ class RobustMatcher
             // from image 1 to image 2
             // based on k nearest neighbours (with k=2)
             vector<vector<cv::DMatch> > matches1;
-            matcher.knnMatch(descriptors1,descriptors2,
-                             matches1, // vector of matches (up to 2 per entry)
-                             2);		  // return 2 nearest neighbours
+            matcher.knnMatch (descriptors1, descriptors2,
+                              matches1, // vector of matches (up to 2 per entry)
+                              2);	    // return 2 nearest neighbours
 
             // from image 2 to image 1
             // based on k nearest neighbours (with k=2)
             vector<vector<cv::DMatch> > matches2;
-            matcher.knnMatch(descriptors2,descriptors1,
-                             matches2, // vector of matches (up to 2 per entry)
-                             2);		  // return 2 nearest neighbours
+            matcher.knnMatch (descriptors2, descriptors1,
+                              matches2, // vector of matches (up to 2 per entry)
+                              2);	    // return 2 nearest neighbours
 
             cout << "Number of matched points 1->2: " << matches1.size() << endl;
             cout << "Number of matched points 2->1: " << matches2.size() << endl;
+
+
 
             // 3. Remove matches for which NN ratio is > than threshold
 
@@ -270,6 +272,8 @@ class RobustMatcher
             // clean image 2 -> image 1 matches
             removed= ratioTest(matches2);
             cout << "Number of matched points 1->2 (ratio test) : " << matches2.size()-removed << endl;
+
+
 
             // 4. Remove non-symmetrical matches
             vector<cv::DMatch> symMatches;
