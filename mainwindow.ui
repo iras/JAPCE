@@ -168,7 +168,7 @@
       </font>
      </property>
      <property name="text">
-      <string>SURF points (1) :</string>
+      <string>features (img1) :</string>
      </property>
     </widget>
     <widget class="QLabel" name="label_2">
@@ -450,7 +450,7 @@
       </font>
      </property>
      <property name="text">
-      <string>SURF points (2) :</string>
+      <string>features (img2) :</string>
      </property>
     </widget>
     <widget class="QLabel" name="label_7">
@@ -553,6 +553,24 @@
       <string/>
      </property>
     </widget>
+   </widget>
+   <widget class="QLabel" name="label_test">
+    <property name="geometry">
+     <rect>
+      <x>420</x>
+      <y>50</y>
+      <width>121</width>
+      <height>41</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <pointsize>32</pointsize>
+     </font>
+    </property>
+    <property name="text">
+     <string>*</string>
+    </property>
    </widget>
   </widget>
   <widget class="QMenuBar" name="menuBar">

@@ -22,6 +22,12 @@ public:
     cv::Mat_<double> *getPCandidatesfromFundamentalMtx (cv::Mat_<double> Fund);
     cv::Mat_<double> pickTheRightP (cv::Mat_<double> P1, cv::Mat_<double> *list_possible_P2s, vector<cv::Point2f> points1, vector<cv::Point2f> points2);
     cv::Mat_<double> triangulate (cv::Mat_<double> x1, cv::Mat_<double> x2, cv::Mat_<double> P1, cv::Mat_<double> P2);
+
+    int getIndex (void);
+
+private:
+
+    int _index;
 };
 
 #endif // RECONSTRUCTOR_H

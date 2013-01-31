@@ -4,7 +4,10 @@ using namespace std;
 
 
 // Reconstructor's constructor
-Reconstructor::Reconstructor() {}
+Reconstructor::Reconstructor()
+{
+    _index = -1;
+}
 
 
 cv::Mat_<double> *Reconstructor::getPCandidatesfromFundamentalMtx (cv::Mat_<double> Fund)
@@ -59,7 +62,6 @@ cv::Mat_<double> Reconstructor::pickTheRightP (cv::Mat_<double> P1, cv::Mat_<dou
     cv::Mat_<double> rx2;
 
     cv::Mat_<double> K = (cv::Mat_<double>(3,3) << 3117.75, 0, 1629.3,   0, 3117.74, 1218.01,   0, 0, 1);
-    cv::Mat_<double> Kinv = K.inv();
 
     for (unsigned int i=0; i<4; i++)
     {
@@ -71,20 +73,15 @@ cv::Mat_<double> Reconstructor::pickTheRightP (cv::Mat_<double> P1, cv::Mat_<dou
             x1 = (cv::Mat_<double>(3,1) <<  points1[j].x, points1[j].y, 1.0);
             x2 = (cv::Mat_<double>(3,1) <<  points2[j].x, points2[j].y, 1.0);
 
-            //x1 = Kinv * x1;
-            //x2 = Kinv * x2;
-
             X = this->triangulate (x1, x2, P1, *(list_possible_P2s+i));
             X_list.push_back (X);
 
-            //rx1 = K * P1 * X;
-            rx1 = P1 * X;
+            rx1 = K * P1 * X;
             rx1_list.push_back (rx1.data[2]);
 
             //cout << "- pick the right P : post rx1" << endl;
 
-            //rx2 = K * *(list_possible_P2s+i) * X;
-            rx2 = *(list_possible_P2s+i) * X;
+            rx2 = K * *(list_possible_P2s+i) * X;
             rx2_list.push_back (rx2.data[2]);
 
             //cout << "- pick the right P : post rx2" << endl;
@@ -109,6 +106,8 @@ cv::Mat_<double> Reconstructor::pickTheRightP (cv::Mat_<double> P1, cv::Mat_<dou
             break;
         }
     }
+
+    _index = index;
 
     cout << "- pick the right P : INDEX " << index << endl;
 
@@ -156,4 +155,13 @@ cv::Mat_<double> Reconstructor::triangulate (cv::Mat_<double> x1, cv::Mat_<doubl
     cv::Mat_<double> X = (cv::Mat_<double>(4,1)  <<  vt(5,0)*rcpr, vt(5,1)*rcpr, vt(5,2)*rcpr, vt(5,3)*rcpr);
 
     return X;
+}
+
+
+
+// getters/setters
+
+int Reconstructor::getIndex (void)
+{
+    return _index;
 }

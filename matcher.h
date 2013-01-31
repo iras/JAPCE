@@ -44,6 +44,9 @@ class RobustMatcher
         double confidence; // confidence level (probability)
         double distance; // min distance to epipolar
 
+        int _features_image_1;
+        int _features_image_2;
+
     public:
 
         RobustMatcher() : ratio(0.65f), refineF(true), confidence(0.99), distance(3.0)
@@ -218,26 +221,29 @@ class RobustMatcher
             return f;
         }
 
+        void detectFeatures (cv::Mat& image1, cv::Mat& image2, // input images
+                             vector<cv::KeyPoint>& keypoints1, vector<cv::KeyPoint>& keypoints2)
+        {
+            // 1a. Detection of the SURF features
+            detector->detect (image1, keypoints1);
+            detector->detect (image2, keypoints2);
+
+            _features_image_1 = keypoints1.size ();
+            _features_image_2 = keypoints2.size ();
+        }
+
         // Match feature points using symmetry test and RANSAC
         // returns fundamental matrix
         cv::Mat match (cv::Mat& image1, cv::Mat& image2, // input images
                        vector<cv::DMatch>& matches, // output matches and keypoints
                        vector<cv::KeyPoint>& keypoints1, vector<cv::KeyPoint>& keypoints2)
         {
-            // 1a. Detection of the SURF features
-            detector->detect(image1,keypoints1);
-            detector->detect(image2,keypoints2);
-
-            cout << "Number of SURF points (1): " << keypoints1.size() << endl;
-            cout << "Number of SURF points (2): " << keypoints2.size() << endl;
-
             // 1b. Extraction of the SURF descriptors
             cv::Mat descriptors1, descriptors2;
-            extractor->compute(image1,keypoints1,descriptors1);
-            extractor->compute(image2,keypoints2,descriptors2);
+            extractor->compute (image1, keypoints1, descriptors1);
+            extractor->compute (image2, keypoints2, descriptors2);
 
             cout << "descriptor matrix size: " << descriptors1.rows << " by " << descriptors1.cols << endl;
-
 
 
             // 2. Match the two image descriptors
@@ -287,6 +293,11 @@ class RobustMatcher
             // return the found fundamental matrix
             return f;
         }
+
+        // getters
+
+        int getNumberFeaturesImage1 () {return _features_image_1;}
+        int getNumberFeaturesImage2 () {return _features_image_2;}
 };
 
 #endif

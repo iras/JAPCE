@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading UI file 'mainwindow.ui'
 **
-** Created: Thu Jan 24 14:08:32 2013
+** Created: Thu Jan 31 16:38:47 2013
 **      by: Qt User Interface Compiler version 4.8.4
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
@@ -49,6 +49,7 @@ public:
     QLabel *label_6;
     QLabel *label_7;
     QLabel *label_8;
+    QLabel *label_test;
     QMenuBar *menuBar;
     QToolBar *mainToolBar;
     QStatusBar *statusBar;
@@ -169,6 +170,12 @@ public:
         palette3.setBrush(QPalette::Disabled, QPalette::Text, brush2);
         label_8->setPalette(palette3);
         label_8->setFont(font);
+        label_test = new QLabel(centralWidget);
+        label_test->setObjectName(QString::fromUtf8("label_test"));
+        label_test->setGeometry(QRect(420, 50, 121, 41));
+        QFont font1;
+        font1.setPointSize(32);
+        label_test->setFont(font1);
         MainWindow->setCentralWidget(centralWidget);
         menuBar = new QMenuBar(MainWindow);
         menuBar->setObjectName(QString::fromUtf8("menuBar"));
@@ -199,14 +206,15 @@ public:
         pushButton_5->setText(QApplication::translate("MainWindow", "Start Calib", 0, QApplication::UnicodeUTF8));
         pushButton_4->setText(QApplication::translate("MainWindow", "Choose folder...", 0, QApplication::UnicodeUTF8));
         groupBox_3->setTitle(QApplication::translate("MainWindow", "info", 0, QApplication::UnicodeUTF8));
-        label->setText(QApplication::translate("MainWindow", "SURF points (1) :", 0, QApplication::UnicodeUTF8));
+        label->setText(QApplication::translate("MainWindow", "features (img1) :", 0, QApplication::UnicodeUTF8));
         label_2->setText(QString());
         label_3->setText(QString());
         label_4->setText(QApplication::translate("MainWindow", "Tracked Points :", 0, QApplication::UnicodeUTF8));
         label_5->setText(QString());
-        label_6->setText(QApplication::translate("MainWindow", "SURF points (2) :", 0, QApplication::UnicodeUTF8));
+        label_6->setText(QApplication::translate("MainWindow", "features (img2) :", 0, QApplication::UnicodeUTF8));
         label_7->setText(QApplication::translate("MainWindow", "execution time :", 0, QApplication::UnicodeUTF8));
         label_8->setText(QString());
+        label_test->setText(QApplication::translate("MainWindow", "*", 0, QApplication::UnicodeUTF8));
     } // retranslateUi
 
 };

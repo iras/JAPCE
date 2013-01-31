@@ -22,8 +22,8 @@ MainWindow::MainWindow (QWidget *parent) :
     _ping->setLoops (1);
 
      ui->label_2->setText ("none yet");
-     //ui->label_3->setText ("none yet");
-     //ui->label_5->setText ("none yet");
+     ui->label_3->setText ("none yet");
+     ui->label_5->setText ("none yet");
      ui->label_8->setText ("-");
 }
 
@@ -90,6 +90,9 @@ void MainWindow::on_pushButton_2_clicked ()
     // match two images
     vector<cv::DMatch> matches;
     vector<cv::KeyPoint> keypoints1, keypoints2;
+    rmatcher.detectFeatures (image1, image2, keypoints1, keypoints2);
+    ui->label_3->setText (QString::number (rmatcher.getNumberFeaturesImage1 ()));
+    ui->label_5->setText (QString::number (rmatcher.getNumberFeaturesImage2 ()));
     cv::Mat f = rmatcher.match (image1, image2, matches, keypoints1, keypoints2);
 
     // plot the matches
@@ -175,10 +178,12 @@ void MainWindow::on_pushButton_2_clicked ()
 
     // display the execution time
     _stop = clock();
-    ui->label_8->setText (QString::number ((_stop - _start)/(CLOCKS_PER_SEC)*60));
+    ui->label_8->setText (QString::number ((_stop - _start)/(CLOCKS_PER_SEC*60)) + " minutes");
 
     // display no. of tracked points
     ui->label_2->setText ("<b>"+QString::number (points1.size())+"</b>");
+
+    ui->label_test->setText ("<b>"+QString::number (rec.getIndex())+"</b>");
 
     GLFrame_1->displayPointCloud (point_cloud);
     GLFrame_1->DelegateCameraPyramidAddition (P1, image1.rows, image1.cols);
