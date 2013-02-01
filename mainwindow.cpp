@@ -21,13 +21,14 @@ MainWindow::MainWindow (QWidget *parent) :
     _ping = new QSound ("/Users/macbookpro/git/JAPCE/ping.wav");
     _ping->setLoops (1);
 
-     ui->label_2->setText ("none yet");
-     ui->label_3->setText ("none yet");
-     ui->label_5->setText ("none yet");
+    // reset of labels' texts.
+     ui->label_2->setText ("-");
+     ui->label_3->setText ("-");
+     ui->label_5->setText ("-");
      ui->label_8->setText ("-");
 }
 
-MainWindow::~MainWindow()
+MainWindow::~MainWindow ()
 {
     delete GLFrame_1;
     delete ui;
@@ -43,30 +44,19 @@ void MainWindow::closeEvent (QCloseEvent *evt)
 
 void MainWindow::on_pushButton_clicked ()
 {
-    QString filename1 = QFileDialog::getOpenFileName (
-                this,
-                tr ("Open Image"), ".",
-                tr ("Image Files (*.png *.jpg *.jpeg *.bmp)"));
-
-    cout << filename1.toAscii().data() << endl;
-
-    image1 = cv::imread (filename1.toAscii().data());
-
+    QString filename1 = QFileDialog::getOpenFileName (this, tr ("Open Image"), "/Users/macbookpro/Dropbox/OpenCV2cookbook/test_photos", tr ("Image Files (*.png *.jpg *.jpeg *.bmp)"));
+    image1 = cv::imread (filename1.toAscii().data ());
     cv::cvtColor (image1, image1, CV_BGR2GRAY);
 
+    //cout << filename1.toAscii().data() << endl;
     //cv::namedWindow ("Original Image 1");
     //cv::imshow ("Original Image 1", image1);
 }
 
 void MainWindow::on_pushButton_3_clicked()
 {
-    QString filename2 = QFileDialog::getOpenFileName(
-                this,
-                tr("Open Image"), ".",
-                tr("Image Files (*.png *.jpg *.jpeg *.bmp)"));
-
-    image2 = cv::imread(filename2.toAscii().data());
-
+    QString filename2 = QFileDialog::getOpenFileName (this, tr ("Open Image"), "/Users/macbookpro/Dropbox/OpenCV2cookbook/test_photos", tr ("Image Files (*.png *.jpg *.jpeg *.bmp)"));
+    image2 = cv::imread(filename2.toAscii().data ());
     cv::cvtColor (image2, image2, CV_BGR2GRAY);
 
     //cv::namedWindow ("Original Image 2");
@@ -146,9 +136,9 @@ void MainWindow::on_pushButton_2_clicked ()
 
     // display images with epipolar lines separately from the main window.
     //cv::namedWindow ("Right Image - Epilines (RANSAC)");
-    cv::imshow ("Right Image Epilines (RANSAC)",image1);
+    cv::imshow ("Right Image Epilines (RANSAC)", image1);
     //cv::namedWindow ("Left Image - Epilines (RANSAC)");
-    cv::imshow ("Left Image Epilines (RANSAC)",image2);
+    cv::imshow ("Left Image Epilines (RANSAC)",  image2);
 
     // 3d reconstruction. (point cloud extraction and display)
     vector <float> point_cloud;
@@ -166,9 +156,9 @@ void MainWindow::on_pushButton_2_clicked ()
         tmp = rec.triangulate (x1, x2, P1, P2);
 
         tmpp = tmp.ptr<double>(0);
-        point_cloud.push_back (float(tmpp[0]));
-        point_cloud.push_back (float(tmpp[1]));
-        point_cloud.push_back (float(tmpp[2]));
+        point_cloud.push_back (float (tmpp[0]));
+        point_cloud.push_back (float (tmpp[1]));
+        point_cloud.push_back (float (tmpp[2]));
     }
 
 

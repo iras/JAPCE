@@ -68,14 +68,12 @@ void GLFrame::wheelEvent (QWheelEvent *event)
 
 void GLFrame::keyPressEvent (QKeyEvent *event)
 {
-    cout << "pressed" << endl;
     if (event->key() == Qt::Key_Control or event->key() == Qt::Key_Meta) {Ctrl_or_Meta_key_pressed = true;}
     if (event->key() == Qt::Key_Alt) {Alt_key_pressed = true;}
 }
 
 void GLFrame::keyReleaseEvent (QKeyEvent *event)
 {
-    cout << "released" << endl;
     if (event->key() == Qt::Key_Control or event->key() == Qt::Key_Meta) {Ctrl_or_Meta_key_pressed = false;}
     if (event->key() == Qt::Key_Alt) {Alt_key_pressed = false;}
 }

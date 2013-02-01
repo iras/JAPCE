@@ -50,7 +50,6 @@ cv::Mat_<double> Reconstructor::pickTheRightP (cv::Mat_<double> P1, cv::Mat_<dou
 {
     cout << "- pick the right P" << endl;
 
-    vector <vector<cv::Point2f> > X_list;
     vector <double> rx1_list;
     vector <double> rx2_list;
     int index = 0;
@@ -60,6 +59,11 @@ cv::Mat_<double> Reconstructor::pickTheRightP (cv::Mat_<double> P1, cv::Mat_<dou
     cv::Mat_<double> x2;
     cv::Mat_<double> rx1;
     cv::Mat_<double> rx2;
+    double sum_rx1;
+    double sum_rx2;
+    unsigned int sum_rx1_greater_than_0;
+    unsigned int sum_rx2_greater_than_0;
+    double* tmpp;
 
     cv::Mat_<double> K = (cv::Mat_<double>(3,3) << 3117.75, 0, 1629.3,   0, 3117.74, 1218.01,   0, 0, 1);
 
@@ -68,51 +72,44 @@ cv::Mat_<double> Reconstructor::pickTheRightP (cv::Mat_<double> P1, cv::Mat_<dou
         // triangulate inliers and compute depth for each camera
         cout << *(list_possible_P2s+i) << endl;
 
-        for (unsigned int j=0; j>points1.size(); j++)
+        rx1_list.clear();
+        rx2_list.clear();
+
+        for (unsigned int j=0; j<points1.size(); j++)
         {
             x1 = (cv::Mat_<double>(3,1) <<  points1[j].x, points1[j].y, 1.0);
             x2 = (cv::Mat_<double>(3,1) <<  points2[j].x, points2[j].y, 1.0);
 
             X = this->triangulate (x1, x2, P1, *(list_possible_P2s+i));
-            X_list.push_back (X);
 
             rx1 = K * P1 * X;
-            rx1_list.push_back (rx1.data[2]);
+            tmpp = rx1.ptr<double>(0);
+            rx1_list.push_back (tmpp[2]);
 
-            //cout << "- pick the right P : post rx1" << endl;
 
             rx2 = K * *(list_possible_P2s+i) * X;
-            rx2_list.push_back (rx2.data[2]);
-
-            //cout << "- pick the right P : post rx2" << endl;
+            tmpp = rx1.ptr<double>(0);
+            rx2_list.push_back (tmpp[2]);
         }
 
-        double sum_rx1 = 0;
-        sum_rx1 = accumulate (rx1_list.begin(), rx1_list.end(), 0);
-        //for (vector<double>::iterator k = rx1_list.begin(); k!=rx1_list.end(); ++k)   sum_rx1 += *k;
-        double sum_rx2 = 0;
-        sum_rx2 = accumulate (rx2_list.begin(), rx2_list.end(), 0);
+        // sums
+        sum_rx1=0;  for (vector<double>::iterator k = rx1_list.begin(); k!=rx1_list.end(); ++k)  sum_rx1 += *k;
+        sum_rx2=0;  for (vector<double>::iterator k = rx2_list.begin(); k!=rx2_list.end(); ++k)  sum_rx2 += *k;
 
-        unsigned int sum_rx1_greater_than_0 = 0;
-        if (sum_rx1>0)  sum_rx1_greater_than_0 = 1;
-        unsigned int sum_rx2_greater_than_0 = 0;
-        if (sum_rx2>0)  sum_rx2_greater_than_0 = 1;
+        cout << i << " --- sum_rx1 : " << sum_rx1 << " ---sum_rx2 : " << sum_rx2 << endl;
+        cout << i << " ---    size : " << rx1_list.size() << " ---    size : " << rx2_list.size() << endl;
 
+        sum_rx1_greater_than_0 = 0;  if (sum_rx1>0) sum_rx1_greater_than_0 = 1;
+        sum_rx2_greater_than_0 = 0;  if (sum_rx2>0) sum_rx2_greater_than_0 = 1;
 
         if (sum_rx1_greater_than_0 + sum_rx2_greater_than_0 > max)
         {
             index = i;
             max = sum_rx1_greater_than_0 + sum_rx2_greater_than_0;
-            break;
         }
     }
 
     _index = index;
-
-    cout << "- pick the right P : INDEX " << index << endl;
-
-    // fixed index value is ONLY for testing purposes.
-    index = 0;
 
     return *(list_possible_P2s+index);
 }
@@ -161,7 +158,4 @@ cv::Mat_<double> Reconstructor::triangulate (cv::Mat_<double> x1, cv::Mat_<doubl
 
 // getters/setters
 
-int Reconstructor::getIndex (void)
-{
-    return _index;
-}
+int Reconstructor::getIndex (void) {return _index;}
