@@ -25,7 +25,8 @@ MainWindow::MainWindow (QWidget *parent) :
      ui->label_2->setText ("-");
      ui->label_3->setText ("-");
      ui->label_5->setText ("-");
-     ui->label_8->setText ("-");
+     time_t result = time(NULL);
+     ui->label_8->setText ("started approx at \n" + QString (std::asctime (std::localtime (&result))));
 }
 
 MainWindow::~MainWindow ()
@@ -67,7 +68,6 @@ void MainWindow::on_pushButton_2_clicked ()
 {
     // take the time
     _start = clock();
-    ui->label_8->setText ("-");
 
     // set up the robust matcher.
     RobustMatcher rmatcher;

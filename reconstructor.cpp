@@ -50,30 +50,24 @@ cv::Mat_<double> Reconstructor::pickTheRightP (cv::Mat_<double> P1, cv::Mat_<dou
 {
     cout << "- pick the right P" << endl;
 
-    vector <double> rx1_list;
-    vector <double> rx2_list;
-    int index = 0;
-    float max = 0;
     cv::Mat_<double> X;
     cv::Mat_<double> x1;
     cv::Mat_<double> x2;
     cv::Mat_<double> rx1;
     cv::Mat_<double> rx2;
+    double max = 0;
     double sum_rx1;
     double sum_rx2;
-    unsigned int sum_rx1_greater_than_0;
-    unsigned int sum_rx2_greater_than_0;
     double* tmpp;
 
-    cv::Mat_<double> K = (cv::Mat_<double>(3,3) << 3117.75, 0, 1629.3,   0, 3117.74, 1218.01,   0, 0, 1);
-
+    _index = 0;
     for (unsigned int i=0; i<4; i++)
     {
         // triangulate inliers and compute depth for each camera
         cout << *(list_possible_P2s+i) << endl;
 
-        rx1_list.clear();
-        rx2_list.clear();
+        sum_rx1=0;
+        sum_rx2=0;
 
         for (unsigned int j=0; j<points1.size(); j++)
         {
@@ -82,36 +76,25 @@ cv::Mat_<double> Reconstructor::pickTheRightP (cv::Mat_<double> P1, cv::Mat_<dou
 
             X = this->triangulate (x1, x2, P1, *(list_possible_P2s+i));
 
-            rx1 = K * P1 * X;
+            rx1 = P1 * X;
             tmpp = rx1.ptr<double>(0);
-            rx1_list.push_back (tmpp[2]);
+            sum_rx1 += tmpp[2] > 0 ? 1 : 0;  // increment sum_rx1 of 1 if tmpp[2] > 0.
 
-
-            rx2 = K * *(list_possible_P2s+i) * X;
+            rx2 = *(list_possible_P2s+i) * X;
             tmpp = rx1.ptr<double>(0);
-            rx2_list.push_back (tmpp[2]);
+            sum_rx2 += tmpp[2] > 0 ? 1 : 0;  // increment sum_rx2 of 1 if tmpp[2] > 0.
         }
 
-        // sums
-        sum_rx1=0;  for (vector<double>::iterator k = rx1_list.begin(); k!=rx1_list.end(); ++k)  sum_rx1 += *k;
-        sum_rx2=0;  for (vector<double>::iterator k = rx2_list.begin(); k!=rx2_list.end(); ++k)  sum_rx2 += *k;
-
         cout << i << " --- sum_rx1 : " << sum_rx1 << " ---sum_rx2 : " << sum_rx2 << endl;
-        cout << i << " ---    size : " << rx1_list.size() << " ---    size : " << rx2_list.size() << endl;
 
-        sum_rx1_greater_than_0 = 0;  if (sum_rx1>0) sum_rx1_greater_than_0 = 1;
-        sum_rx2_greater_than_0 = 0;  if (sum_rx2>0) sum_rx2_greater_than_0 = 1;
-
-        if (sum_rx1_greater_than_0 + sum_rx2_greater_than_0 > max)
+        if (sum_rx1 + sum_rx2 > max)
         {
-            index = i;
-            max = sum_rx1_greater_than_0 + sum_rx2_greater_than_0;
+            _index = i;
+            max = sum_rx1 + sum_rx2;
         }
     }
 
-    _index = index;
-
-    return *(list_possible_P2s+index);
+    return *(list_possible_P2s + _index);
 }
 
 
