@@ -218,18 +218,13 @@ void GLRenderThread::addCameraPyramid  (cv::Mat_<double> &camera_matrix, int row
     double rh = rows / 1500;
     double ch = cols / 1500;
     double depth = 3.0;
+    cv::Mat_<double> pp0, pp1, pp2, pp3, pp4;
 
     cv::Mat_<double> p0 = (cv::Mat_<double>(4,1) <<  0.0, 0.0,  0.0,  1.0);
     cv::Mat_<double> p1 = (cv::Mat_<double>(4,1) <<  -ch, -rh, depth, 1.0);
     cv::Mat_<double> p2 = (cv::Mat_<double>(4,1) <<  -ch,  rh, depth, 1.0);
     cv::Mat_<double> p3 = (cv::Mat_<double>(4,1) <<   ch,  rh, depth, 1.0);
     cv::Mat_<double> p4 = (cv::Mat_<double>(4,1) <<   ch, -rh, depth, 1.0);
-
-    cv::Mat_<double> pp0 = (cv::Mat_<double>(3,1) <<  0.0, 0.0,  0.0);
-    cv::Mat_<double> pp1 = (cv::Mat_<double>(3,1) <<  0.0, 0.0,  0.0);
-    cv::Mat_<double> pp2 = (cv::Mat_<double>(3,1) <<  0.0, 0.0,  0.0);
-    cv::Mat_<double> pp3 = (cv::Mat_<double>(3,1) <<  0.0, 0.0,  0.0);
-    cv::Mat_<double> pp4 = (cv::Mat_<double>(3,1) <<  0.0, 0.0,  0.0);
 
     pp0 = camera_matrix * p0;
     pp1 = camera_matrix * p1;

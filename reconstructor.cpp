@@ -12,26 +12,26 @@ Reconstructor::Reconstructor()
 
 cv::Mat_<double> *Reconstructor::getPCandidatesfromFundamentalMtx (cv::Mat_<double> Fund)
 {
-    cout << "- get P candidates from Fundamental Mtx" << endl;
-
     cv::Mat_<double> W = (cv::Mat_<double>(3,3) <<  0,-1,0,  1,0,0,  0,0,1); // orthogonal
     cv::Mat_<double> Z = (cv::Mat_<double>(3,3) <<  0,1,0,  -1,0,0,  0,0,0); // skew-symmetric
 
     cv::Mat_<double> K = (cv::Mat_<double>(3,3) << 3117.75, 0, 1629.3,   0, 3117.74, 1218.01,   0, 0, 1);
     cv::Mat_<double> Kt  = K.t();
-    //cv::Mat_<double> Ki  = K.inv();
-    //cv::Mat_<double> Kti = Ki.t());
 
     cv::Mat_<double> Ess = Kt * Fund * K;
     cv::SVD svd (Ess);
 
     cv::Mat_<double> U  = svd.u;
+    cv::Mat_<double> Vt = svd.vt;
 
-    cv::Mat_<double> R1 = U * W * svd.vt;
-    cv::Mat_<double> R2 = U * W.t() * svd.vt;
+    if (cv::determinant (U * Vt) < 0)
+    {
+        cout << "INVERSION" << endl;
+        Vt = -Vt;
+    }
 
-    if (fabsf(cv::determinant (R1))-1.0 > 1e-07) {cout << "det(R1) != +-1.0, this is not a rotation matrix" << endl;}
-    if (fabsf(cv::determinant (R2))-1.0 > 1e-07) {cout << "det(R2) != +-1.0, this is not a rotation matrix" << endl;}
+    cv::Mat_<double> R1 = U * W * Vt;
+    cv::Mat_<double> R2 = U * W.t() * Vt;
 
     cv::Vec3d u3 = cv::Vec3d (U(0,2), U(1,2), U(2,2)); // this vector represents the rightmost column of the matrix U. Or, in other words (u3)^t.
 
@@ -48,23 +48,17 @@ cv::Mat_<double> *Reconstructor::getPCandidatesfromFundamentalMtx (cv::Mat_<doub
 
 cv::Mat_<double> Reconstructor::pickTheRightP (cv::Mat_<double> P1, cv::Mat_<double> *list_possible_P2s, vector<cv::Point2f> points1, vector<cv::Point2f> points2)
 {
-    cout << "- pick the right P" << endl;
-
-    cv::Mat_<double> X;
-    cv::Mat_<double> x1;
-    cv::Mat_<double> x2;
-    cv::Mat_<double> rx1;
-    cv::Mat_<double> rx2;
-    double max = 0;
-    double sum_rx1;
-    double sum_rx2;
+    cv::Mat_<double> X, x1, x2, reproject_x1, reproject_x2;
+    double sum_rx1, sum_rx2;
     double* tmpp;
 
     _index = 0;
+    double max = 0;
+    unsigned int v;
     for (unsigned int i=0; i<4; i++)
     {
-        // triangulate inliers and compute depth for each camera
-        cout << *(list_possible_P2s+i) << endl;
+        // triangulate inliers + outliers and compute depth for each camera
+        //cout << *(list_possible_P2s + i) << endl;
 
         sum_rx1=0;
         sum_rx2=0;
@@ -74,18 +68,20 @@ cv::Mat_<double> Reconstructor::pickTheRightP (cv::Mat_<double> P1, cv::Mat_<dou
             x1 = (cv::Mat_<double>(3,1) <<  points1[j].x, points1[j].y, 1.0);
             x2 = (cv::Mat_<double>(3,1) <<  points2[j].x, points2[j].y, 1.0);
 
-            X = this->triangulate (x1, x2, P1, *(list_possible_P2s+i));
+            X = this->triangulate (x1, x2, P1, *(list_possible_P2s + i));
 
-            rx1 = P1 * X;
-            tmpp = rx1.ptr<double>(0);
-            sum_rx1 += tmpp[2] > 0 ? 1 : 0;  // increment sum_rx1 of 1 if tmpp[2] > 0.
+            reproject_x1 = P1 * X;
+            tmpp = reproject_x1.ptr<double>(0);
+            v = tmpp[2]>0 ? 1 : 0;
+            sum_rx1 += v;  // increment sum_rx1 of 1 if tmpp[2] is positive.
 
-            rx2 = *(list_possible_P2s+i) * X;
-            tmpp = rx1.ptr<double>(0);
-            sum_rx2 += tmpp[2] > 0 ? 1 : 0;  // increment sum_rx2 of 1 if tmpp[2] > 0.
+            reproject_x2 = *(list_possible_P2s + i) * X;
+            tmpp = reproject_x2.ptr<double>(0);
+            v = tmpp[2]>0 ? 1 : 0;
+            sum_rx2 += v;  // increment sum_rx2 of 1 if tmpp[2] is positive.
         }
 
-        cout << i << " --- sum_rx1 : " << sum_rx1 << " ---sum_rx2 : " << sum_rx2 << endl;
+        cout << i << " • sum_rx1=" << sum_rx1 << " sum_rx2=" << sum_rx2 << " Total=" << sum_rx1+sum_rx2 << endl;
 
         if (sum_rx1 + sum_rx2 > max)
         {
@@ -93,6 +89,8 @@ cv::Mat_<double> Reconstructor::pickTheRightP (cv::Mat_<double> P1, cv::Mat_<dou
             max = sum_rx1 + sum_rx2;
         }
     }
+
+    _index = 3;
 
     return *(list_possible_P2s + _index);
 }
@@ -117,8 +115,8 @@ cv::Mat_<double> Reconstructor::triangulate (cv::Mat_<double> x1, cv::Mat_<doubl
     //      P2   0 -x2
     //
     cv::Mat_<double> M = cv::Mat_<double>::zeros (6,6);
-    cv::Mat_<double> aux1 = M.colRange(0,4).rowRange(0,3);  P1.copyTo (aux1);
-    cv::Mat_<double> aux2 = M.colRange(0,4).rowRange(3,6);  P2.copyTo (aux2);
+    cv::Mat_<double> aux1 = M.colRange(0,4).rowRange(0,3);  P1.copyTo  (aux1);
+    cv::Mat_<double> aux2 = M.colRange(0,4).rowRange(3,6);  P2.copyTo  (aux2);
     cv::Mat_<double> aux3 = M.colRange(4,5).rowRange(0,3);  x1c.copyTo (aux3);
     cv::Mat_<double> aux4 = M.colRange(5,6).rowRange(3,6);  x2c.copyTo (aux4);
     //cout << "- triangulate : M 6x6 : " << M << endl;
