@@ -90,8 +90,6 @@ cv::Mat_<double> Reconstructor::pickTheRightP (cv::Mat_<double> P1, cv::Mat_<dou
         }
     }
 
-    _index = 3;
-
     return *(list_possible_P2s + _index);
 }
 
