@@ -334,38 +334,64 @@ void GLRenderThread::paintGL (void)
     this->drawCurrentOriginAxes ();
     this->displayCameraPyramids ();
 
-    // display the point cloud
-    glEnable (GL_POINT_SMOOTH);
-    glPointSize (4.0);
+
     vector <float> temp;
     temp.resize (3);
-    for (unsigned int i=0; i<_point_cloud.size(); i++)
+
+    // display the loader anim
+    for (unsigned int i=0; i<_loader_anim.size(); i++)
     {
         glBegin (GL_POINTS);
         temp.clear();
-        temp = vector<float> (_point_cloud[i]);
-        glVertex3f (temp[0], temp[1], temp[2]); glColor3f (1.,0.,0.);
+        temp = vector<float> (_loader_anim[i]);
+        glVertex3f (temp[0], temp[1], temp[2]); glColor3f (1., 0., 0.);
         glEnd ();
+    }
+
+
+
+    // display the point cloud
+    glEnable (GL_POINT_SMOOTH);
+    glPointSize (4.0);
+    cout << _point_cloud.size() << endl;
+    vector<vector<float> > meta_temp;
+
+    for (unsigned int i=0; i<_point_cloud.size(); i++)
+    {
+        meta_temp.clear();
+        meta_temp = _point_cloud[i];
+        for (unsigned int j=0; j<meta_temp.size(); j++)
+        {
+            glBegin (GL_POINTS);
+            temp.clear();
+            temp = vector<float> (meta_temp[j]);
+            glVertex3f (temp[0], temp[1], temp[2]); glColor3f (1., 0., 0.);
+            glEnd ();
+        }
     }
 }
 
 void GLRenderThread::updateCameraDistanceFromCenter (float dist)  {_camera_dist += dist * 0.01;}
 
-
-
-
-
-
-void GLRenderThread::setPointCloud (vector<vector<float> > &point_cloud)
+void GLRenderThread::setPointCloud (vector<vector<vector<float> > > point_cloud)
 {
-    this->removeLoaderAnim ();
-
-    // add new point cloud
-    for (vector <vector <float> >::iterator i=point_cloud.begin(); i!=point_cloud.end(); ++i)
-    {
-        _point_cloud.push_back(*i);
-    }
+    _point_cloud = point_cloud;
 }
+
+
+
+
+//void GLRenderThread::addPointCloudSegment (vector<vector<float> > &point_cloud_segment)
+//{
+//    this->removeLoaderAnim ();
+
+//    // copy point cloud segment
+//    vector<vector<float> > meta_temp;
+//    for (vector <vector <float> >::iterator i=point_cloud_segment.begin(); i!=point_cloud_segment.end(); ++i)  {meta_temp.push_back(*i);}
+
+//    // push the new segment in the vector containing the point cloud segments.
+//    _point_cloud.push_back (meta_temp);
+//}
 
 
 
@@ -381,30 +407,30 @@ void GLRenderThread::addLoaderAnim (void)
     // add three points
     vector<float> temp;
     temp.resize (3); // fix temp size to 3 floats.
+    vector<vector<float> > meta_temp;
+    meta_temp.clear();
 
     temp.clear();
     temp.push_back (20.0f);
     temp.push_back (0.0f);
     temp.push_back (-25.0f);
-    _point_cloud.push_back (temp);
+    _loader_anim.push_back (temp);
 
     temp.clear();
     temp.push_back (20.0f);
     temp.push_back (0.0f);
     temp.push_back (-15.0f);
-    _point_cloud.push_back (temp);
+    _loader_anim.push_back (temp);
 
     temp.clear();
     temp.push_back (20.0f);
     temp.push_back (0.0f);
     temp.push_back (-5.0f);
-    _point_cloud.push_back (temp);
+    _loader_anim.push_back (temp);
 }
 
 void GLRenderThread::removeLoaderAnim (void)
 {
     // remove old test points.
-    _point_cloud.pop_back();
-    _point_cloud.pop_back();
-    _point_cloud.pop_back();
+    _loader_anim.clear();
 }

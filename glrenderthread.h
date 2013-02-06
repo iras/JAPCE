@@ -27,9 +27,10 @@ public:
     void stop (void);
     void updateCameraDistanceFromCenter (float dist);
 
-    vector<vector<float> >_point_cloud;
-    void setPointCloud (vector<vector<float> > &point_cloud);
-    void addCameraPyramid  (cv::Mat_<double> &camera_matrix, int rows, int cols);
+    vector<vector<float> > _loader_anim;
+    vector<vector<vector<float> > > _point_cloud;
+    void setPointCloud (vector<vector<vector<float> > > point_cloud);
+    void addCameraPyramid (cv::Mat_<double> &camera_matrix, int rows, int cols);
 
 protected:
     void GLInit   (void);

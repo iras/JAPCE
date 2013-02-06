@@ -30,7 +30,7 @@ void GLFrame::stopRenderThread (void)
     RenderThread.wait();
 }
 
-void GLFrame::displayPointCloud (vector<vector <float> > &point_cloud)
+void GLFrame::setPointCloud (vector<vector<vector<float> > > point_cloud)
 {
     RenderThread.setPointCloud (point_cloud);
 }
@@ -49,7 +49,7 @@ void GLFrame::resizeEvent (QResizeEvent *event)
 
 void GLFrame::paintEvent (QPaintEvent *)
 {
-    // Do nothing. Let the thread do the work
+    // Do nothing. Let the thread do the heavy lifting.
 }
 
 void GLFrame::closeEvent (QCloseEvent *event)

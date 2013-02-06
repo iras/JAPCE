@@ -142,7 +142,10 @@ void MainWindow::on_pushButton_2_clicked ()
 
 
     // 3d reconstruction. (point cloud extraction and display)
-    vector <vector<float> > point_cloud;
+    vector<vector<vector<float> > > point_cloud;
+    GLFrame_1->setPointCloud (point_cloud);
+
+    vector<vector<float> > point_cloud_segment;
     Reconstructor rec; // set the reconstructor up.
     cv::Mat_<double> P1 = (cv::Mat_<double>(3,4) <<  1,0,0,0,  0,1,0,0,  0,0,1,0);
     cv::Mat_<double> P2 = rec.pickTheRightP (P1, rec.getPCandidatesfromFundamentalMtx ((cv::Mat_<double>)f), points1, points2);
@@ -164,8 +167,11 @@ void MainWindow::on_pushButton_2_clicked ()
         temp.push_back (float (tmpp[0])); // create vector of coordinates
         temp.push_back (float (tmpp[1]));
         temp.push_back (float (tmpp[2]));
-        point_cloud.push_back (temp); // push the vector temp into the point_cloud vector.
+        point_cloud_segment.push_back (temp); // push the vector temp into the point_cloud vector.
     }
+
+    point_cloud.push_back (point_cloud_segment);
+    GLFrame_1->setPointCloud (point_cloud);
 
 
 
@@ -178,10 +184,8 @@ void MainWindow::on_pushButton_2_clicked ()
 
     // display no. of tracked points
     ui->label_2->setText ("<b>"+QString::number (points1.size())+"</b>");
-
     ui->label_test->setText ("<b>"+QString::number (rec.getIndex())+"</b>");
 
-    GLFrame_1->displayPointCloud (point_cloud);
     GLFrame_1->DelegateCameraPyramidAddition (P1, image1.rows, image1.cols);
     GLFrame_1->DelegateCameraPyramidAddition (P2, image1.rows, image1.cols);
 

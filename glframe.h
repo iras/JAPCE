@@ -20,7 +20,7 @@ public:
     bool getCtrlMetaFlag ();
     bool getAltFlag ();
 
-    void displayPointCloud (vector<vector<float> > &point_cloud);
+    void setPointCloud (vector<vector<vector<float> > > point_cloud);
     void DelegateCameraPyramidAddition  (cv::Mat_<double> &camera_matrix, int rows, int cols);
 
 signals:
