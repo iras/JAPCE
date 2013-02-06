@@ -30,7 +30,7 @@ void GLFrame::stopRenderThread (void)
     RenderThread.wait();
 }
 
-void GLFrame::displayPointCloud (vector<float> &point_cloud)
+void GLFrame::displayPointCloud (vector<vector <float> > &point_cloud)
 {
     RenderThread.setPointCloud (point_cloud);
 }

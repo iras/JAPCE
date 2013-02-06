@@ -27,8 +27,8 @@ public:
     void stop (void);
     void updateCameraDistanceFromCenter (float dist);
 
-    vector<float> _point_cloud;
-    void setPointCloud (vector<float> &point_cloud);
+    vector<vector<float> >_point_cloud;
+    void setPointCloud (vector<vector<float> > &point_cloud);
     void addCameraPyramid  (cv::Mat_<double> &camera_matrix, int rows, int cols);
 
 protected:

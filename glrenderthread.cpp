@@ -316,8 +316,8 @@ void GLRenderThread::paintGL (void)
     // Set the camera orientation :
     glMatrixMode (GL_MODELVIEW) ;
     glLoadIdentity ();
-    //         CameraPos         CameraLookAt          CameraUp
-    gluLookAt (0, 0,-40,     _o.x(),_o.y(),_o.z(),     0, 1, 0);
+    //               CameraPos                  CameraLookAt          CameraUp
+    gluLookAt (_o.x(),_o.y(),_o.z()-40,     _o.x(),_o.y(),_o.z(),     0, 1, 0);
 
     // Rotate and move camera forward or backward (Maya-like 3D navigation).
     glTranslatef (0, 0, -_camera_dist);
@@ -337,28 +337,31 @@ void GLRenderThread::paintGL (void)
     // display the point cloud
     glEnable (GL_POINT_SMOOTH);
     glPointSize (4.0);
-    unsigned int j;
-    unsigned int len = _point_cloud.size()/3;
-    for (unsigned int i=0; i<len; i++)
+    vector <float> temp;
+    temp.resize (3);
+    for (unsigned int i=0; i<_point_cloud.size(); i++)
     {
-        j = i+i+i;
         glBegin (GL_POINTS);
-            glVertex3f (_point_cloud[j], _point_cloud[j+1], _point_cloud[j+2]); glColor3f (1.,0.,0.);
+        temp.clear();
+        temp = vector<float> (_point_cloud[i]);
+        glVertex3f (temp[0], temp[1], temp[2]); glColor3f (1.,0.,0.);
         glEnd ();
     }
 }
 
-void GLRenderThread::updateCameraDistanceFromCenter (float dist)
-{
-    _camera_dist += dist * 0.01;
-}
+void GLRenderThread::updateCameraDistanceFromCenter (float dist)  {_camera_dist += dist * 0.01;}
 
-void GLRenderThread::setPointCloud (vector<float> &point_cloud)
+
+
+
+
+
+void GLRenderThread::setPointCloud (vector<vector<float> > &point_cloud)
 {
     this->removeLoaderAnim ();
 
     // add new point cloud
-    for (vector <float>::iterator i=point_cloud.begin(); i!=point_cloud.end(); ++i)
+    for (vector <vector <float> >::iterator i=point_cloud.begin(); i!=point_cloud.end(); ++i)
     {
         _point_cloud.push_back(*i);
     }
@@ -376,23 +379,32 @@ void GLRenderThread::setPointCloud (vector<float> &point_cloud)
 void GLRenderThread::addLoaderAnim (void)
 {
     // add three points
-    _point_cloud.push_back (20.0f);
-    _point_cloud.push_back (0.0f);
-    _point_cloud.push_back (-25.0f);
+    vector<float> temp;
+    temp.resize (3); // fix temp size to 3 floats.
 
-    _point_cloud.push_back (20.0f);
-    _point_cloud.push_back (0.0f);
-    _point_cloud.push_back (-15.0f);
+    temp.clear();
+    temp.push_back (20.0f);
+    temp.push_back (0.0f);
+    temp.push_back (-25.0f);
+    _point_cloud.push_back (temp);
 
-    _point_cloud.push_back (20.0f);
-    _point_cloud.push_back (0.0f);
-    _point_cloud.push_back (-5.0f);
+    temp.clear();
+    temp.push_back (20.0f);
+    temp.push_back (0.0f);
+    temp.push_back (-15.0f);
+    _point_cloud.push_back (temp);
+
+    temp.clear();
+    temp.push_back (20.0f);
+    temp.push_back (0.0f);
+    temp.push_back (-5.0f);
+    _point_cloud.push_back (temp);
 }
 
 void GLRenderThread::removeLoaderAnim (void)
 {
     // remove old test points.
-    _point_cloud.pop_back();  _point_cloud.pop_back();  _point_cloud.pop_back();
-    _point_cloud.pop_back();  _point_cloud.pop_back();  _point_cloud.pop_back();
-    _point_cloud.pop_back();  _point_cloud.pop_back();  _point_cloud.pop_back();
+    _point_cloud.pop_back();
+    _point_cloud.pop_back();
+    _point_cloud.pop_back();
 }

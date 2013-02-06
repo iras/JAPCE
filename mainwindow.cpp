@@ -120,7 +120,7 @@ void MainWindow::on_pushButton_2_clicked ()
     cv::computeCorrespondEpilines (cv::Mat(points1), 1, f, lines1);
     for (vector<cv::Vec3f>::const_iterator it= lines1.begin(); it!=lines1.end(); ++it)
     {
-        cv::line (image2,cv::Point(0,-(*it)[2]/(*it)[1]),
+        cv::line (image2,cv::Point (0,-(*it)[2]/(*it)[1]),
         cv::Point (image2.cols,-((*it)[2]+(*it)[0]*image2.cols)/(*it)[1]),
         cv::Scalar (100,160,100));
     }
@@ -140,14 +140,18 @@ void MainWindow::on_pushButton_2_clicked ()
     //cv::namedWindow ("Left Image - Epilines (RANSAC)");
     cv::imshow ("Left Image Epilines (RANSAC)",  image2);
 
+
     // 3d reconstruction. (point cloud extraction and display)
-    vector <float> point_cloud;
+    vector <vector<float> > point_cloud;
     Reconstructor rec; // set the reconstructor up.
     cv::Mat_<double> P1 = (cv::Mat_<double>(3,4) <<  1,0,0,0,  0,1,0,0,  0,0,1,0);
     cv::Mat_<double> P2 = rec.pickTheRightP (P1, rec.getPCandidatesfromFundamentalMtx ((cv::Mat_<double>)f), points1, points2);
     cv::Mat_<double> x1, x2;
     cv::Mat_<double> tmp;
     double* tmpp;
+    vector<float> temp;
+    temp.resize (3); // fix temp size to 3 floats.
+
     for (uint i=0; i < points1.size(); i++)
     {
         x1 = (cv::Mat_<double>(3,1) <<  points1[i].x, points1[i].y, 1.0);
@@ -156,9 +160,11 @@ void MainWindow::on_pushButton_2_clicked ()
         tmp = rec.triangulate (x1, x2, P1, P2);
 
         tmpp = tmp.ptr<double>(0);
-        point_cloud.push_back (float (tmpp[0]));
-        point_cloud.push_back (float (tmpp[1]));
-        point_cloud.push_back (float (tmpp[2]));
+        temp.clear();
+        temp.push_back (float (tmpp[0])); // create vector of coordinates
+        temp.push_back (float (tmpp[1]));
+        temp.push_back (float (tmpp[2]));
+        point_cloud.push_back (temp); // push the vector temp into the point_cloud vector.
     }
 
 
@@ -168,7 +174,7 @@ void MainWindow::on_pushButton_2_clicked ()
 
     // display the execution time
     _stop = clock();
-    ui->label_8->setText (QString::number ((_stop - _start)/(CLOCKS_PER_SEC*60)) + " minutes");
+    ui->label_8->setText (QString::number ((_stop - _start)/(CLOCKS_PER_SEC * 60)) + " minutes");
 
     // display no. of tracked points
     ui->label_2->setText ("<b>"+QString::number (points1.size())+"</b>");
