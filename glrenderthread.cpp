@@ -14,7 +14,7 @@ GLRenderThread::GLRenderThread (GLFrame *_GLFrame) :
     doResize = false;
     FrameCounter = 0;
 
-    _zoom = -10;
+    _camera_dist = -10;
     _o = QVector3D (0.0, 0.0, 0.0); // current origin
     _current_angles = QPoint (0,0);
 
@@ -22,20 +22,8 @@ GLRenderThread::GLRenderThread (GLFrame *_GLFrame) :
     for (int i=0; i<16; i++) {m[i] = 0;}
     m[0]=1; m[5]=1; m[10]=1; m[15]=1;
 
-    // added 3 example points
-    _point_cloud.push_back (20.0f);
-    _point_cloud.push_back (0.0f);
-    _point_cloud.push_back (-25.0f);
-
-    _point_cloud.push_back (20.0f);
-    _point_cloud.push_back (0.0f);
-    _point_cloud.push_back (-15.0f);
-
-    _point_cloud.push_back (20.0f);
-    _point_cloud.push_back (0.0f);
-    _point_cloud.push_back (-5.0f);
-
-
+    // added loader's animation
+    this->addLoaderAnim ();
 }
 
 void GLRenderThread::resizeViewport (const QSize &size)
@@ -332,7 +320,7 @@ void GLRenderThread::paintGL (void)
     gluLookAt (0, 0,-40,     _o.x(),_o.y(),_o.z(),     0, 1, 0);
 
     // Rotate and move camera forward or backward (Maya-like 3D navigation).
-    glTranslatef (0, 0, -_zoom);
+    glTranslatef (0, 0, -_camera_dist);
     glTranslatef (_o.x(), _o.y(), _o.z()); // rotation around current origin.          Part 1/3
     glRotatef (-30 - _current_angles.y() * 0.15f,  1, 0, 0); // rotate around axis x.  Part 2/3
     glRotatef (-30 + _current_angles.x() * 0.1f,   0, 1, 0); // rotate around axis y.  Part 2/3
@@ -360,21 +348,51 @@ void GLRenderThread::paintGL (void)
     }
 }
 
-void GLRenderThread::updateCameraDistanceFromCenter (float zoom)
+void GLRenderThread::updateCameraDistanceFromCenter (float dist)
 {
-    _zoom += zoom * 0.01;
+    _camera_dist += dist * 0.01;
 }
 
 void GLRenderThread::setPointCloud (vector<float> &point_cloud)
 {
-    // remove old test points.
-    _point_cloud.pop_back();  _point_cloud.pop_back();  _point_cloud.pop_back();
-    _point_cloud.pop_back();  _point_cloud.pop_back();  _point_cloud.pop_back();
-    _point_cloud.pop_back();  _point_cloud.pop_back();  _point_cloud.pop_back();
+    this->removeLoaderAnim ();
 
     // add new point cloud
     for (vector <float>::iterator i=point_cloud.begin(); i!=point_cloud.end(); ++i)
     {
         _point_cloud.push_back(*i);
     }
+}
+
+
+
+
+
+
+
+
+////////// additional functions
+
+void GLRenderThread::addLoaderAnim (void)
+{
+    // add three points
+    _point_cloud.push_back (20.0f);
+    _point_cloud.push_back (0.0f);
+    _point_cloud.push_back (-25.0f);
+
+    _point_cloud.push_back (20.0f);
+    _point_cloud.push_back (0.0f);
+    _point_cloud.push_back (-15.0f);
+
+    _point_cloud.push_back (20.0f);
+    _point_cloud.push_back (0.0f);
+    _point_cloud.push_back (-5.0f);
+}
+
+void GLRenderThread::removeLoaderAnim (void)
+{
+    // remove old test points.
+    _point_cloud.pop_back();  _point_cloud.pop_back();  _point_cloud.pop_back();
+    _point_cloud.pop_back();  _point_cloud.pop_back();  _point_cloud.pop_back();
+    _point_cloud.pop_back();  _point_cloud.pop_back();  _point_cloud.pop_back();
 }

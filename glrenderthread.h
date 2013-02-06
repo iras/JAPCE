@@ -25,7 +25,7 @@ public:
     void resizeViewport (const QSize &size);
     void run  (void);
     void stop (void);
-    void updateCameraDistanceFromCenter (float zoom);
+    void updateCameraDistanceFromCenter (float dist);
 
     vector<float> _point_cloud;
     void setPointCloud (vector<float> &point_cloud);
@@ -46,7 +46,7 @@ private:
     QPoint _delta;
     QPoint _current_angles;
     QVector3D _o;
-    float _zoom;
+    float _camera_dist;
     GLfloat m[16];
 
     void drawGrid (void);
@@ -54,6 +54,9 @@ private:
     void displayCameraPyramids (void);
 
     vector<vector<cv::Mat_<double> > > camera_pyramids;
+
+    void addLoaderAnim (void);
+    void removeLoaderAnim (void);
 
 signals:
 public slots:
