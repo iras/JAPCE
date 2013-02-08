@@ -24,7 +24,7 @@ public:
     bool getCtrlMetaFlag ();
     bool getAltFlag ();
 
-    void setPointCloud (MPointCloud *point_cloud);
+    void delegateSetPointCloud (MPointCloud *point_cloud);
     void DelegateCameraPyramidAddition  (cv::Mat_<double> &camera_matrix, int rows, int cols);
 
 signals:

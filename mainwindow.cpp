@@ -147,7 +147,7 @@ void MainWindow::on_pushButton_2_clicked ()
 
 
     // 3d reconstruction. (point cloud extraction and display)
-    GLFrame_1->setPointCloud (_pc);
+    GLFrame_1->delegateSetPointCloud (_pc);
 
     vector<vector<float> > pc_segment;
     Reconstructor rec; // set the reconstructor up.
