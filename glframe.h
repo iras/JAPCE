@@ -5,6 +5,9 @@
 #include "glrenderthread.h"
 #include <iostream>
 #include <vector>
+
+#include <mpointcloud.h>
+
 #include <opencv2/core/core.hpp>
 using namespace std;
 
@@ -14,13 +17,14 @@ class GLFrame : public QGLWidget
 public:
     explicit GLFrame (QWidget *parent = 0);
     ~GLFrame ();
+
     void initRenderThread (void);
     void stopRenderThread (void);
 
     bool getCtrlMetaFlag ();
     bool getAltFlag ();
 
-    void setPointCloud (vector<vector<vector<float> > > point_cloud);
+    void setPointCloud (MPointCloud *point_cloud);
     void DelegateCameraPyramidAddition  (cv::Mat_<double> &camera_matrix, int rows, int cols);
 
 signals:

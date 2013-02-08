@@ -14,13 +14,15 @@ SOURCES += main.cpp\
            mainwindow.cpp \
     	   reconstructor.cpp \
     	   glframe.cpp \
-           glrenderthread.cpp
+           glrenderthread.cpp \
+    mpointcloud.cpp
 
 HEADERS  += mainwindow.h\
             matcher.h \
             reconstructor.h \
             glframe.h \
-            glrenderthread.h
+            glrenderthread.h \
+    mpointcloud.h
 
 FORMS    += mainwindow.ui
 

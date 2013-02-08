@@ -22,11 +22,13 @@ MainWindow::MainWindow (QWidget *parent) :
     _ping->setLoops (1);
 
     // reset of labels' texts.
-     ui->label_2->setText ("-");
-     ui->label_3->setText ("-");
-     ui->label_5->setText ("-");
-     time_t result = time(NULL);
-     ui->label_8->setText ("started approx at \n" + QString (std::asctime (std::localtime (&result))));
+    ui->label_2->setText ("-");
+    ui->label_3->setText ("-");
+    ui->label_5->setText ("-");
+    time_t result = time(NULL);
+    ui->label_8->setText ("started approx at \n" + QString (std::asctime (std::localtime (&result))));
+
+    _pc = new MPointCloud ();
 }
 
 MainWindow::~MainWindow ()
@@ -141,11 +143,13 @@ void MainWindow::on_pushButton_2_clicked ()
     cv::imshow ("Left Image Epilines (RANSAC)",  image2);
 
 
-    // 3d reconstruction. (point cloud extraction and display)
-    vector<vector<vector<float> > > point_cloud;
-    GLFrame_1->setPointCloud (point_cloud);
 
-    vector<vector<float> > point_cloud_segment;
+
+
+    // 3d reconstruction. (point cloud extraction and display)
+    GLFrame_1->setPointCloud (_pc);
+
+    vector<vector<float> > pc_segment;
     Reconstructor rec; // set the reconstructor up.
     cv::Mat_<double> P1 = (cv::Mat_<double>(3,4) <<  1,0,0,0,  0,1,0,0,  0,0,1,0);
     cv::Mat_<double> P2 = rec.pickTheRightP (P1, rec.getPCandidatesfromFundamentalMtx ((cv::Mat_<double>)f), points1, points2);
@@ -167,11 +171,10 @@ void MainWindow::on_pushButton_2_clicked ()
         temp.push_back (float (tmpp[0])); // create vector of coordinates
         temp.push_back (float (tmpp[1]));
         temp.push_back (float (tmpp[2]));
-        point_cloud_segment.push_back (temp); // push the vector temp into the point_cloud vector.
+        pc_segment.push_back (temp); // push the vector temp into the point_cloud vector.
     }
 
-    point_cloud.push_back (point_cloud_segment);
-    GLFrame_1->setPointCloud (point_cloud);
+    _pc->addSegment (&pc_segment);
 
 
 

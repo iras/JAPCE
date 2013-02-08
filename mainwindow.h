@@ -7,6 +7,7 @@
 #include <QtGui/QFileDialog>
 #include <QSound>
 #include <time.h>
+#include <mpointcloud.h>
 
 // usual OpenCV imports
 
@@ -55,6 +56,8 @@ private:
 
     clock_t _start;
     clock_t _stop;
+
+    MPointCloud *_pc;
 
 protected:
     void closeEvent (QCloseEvent *evt);
