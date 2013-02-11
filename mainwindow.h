@@ -7,6 +7,10 @@
 #include <QtGui/QFileDialog>
 #include <QSound>
 #include <time.h>
+
+#include "matcher.h"
+#include "reconstructor.h"
+#include "glframe.h"
 #include <mpointcloud.h>
 
 // usual OpenCV imports
@@ -40,17 +44,20 @@ public:
     explicit MainWindow (QWidget *parent = 0);
     ~MainWindow ();
     
+    cv::Mat getFundamentalAndMatches (vector<cv::Point2f> *points1, vector<cv::Point2f> *points2, RobustMatcher rmatcher);
+    void doReconstructSweep (Reconstructor *rec, cv::Mat f, int image_rows, int image_cols, vector<cv::Point2f> *points1, vector<cv::Point2f> *points2);
+
 private slots:
-    void on_pushButton_clicked ();
+    void on_pushButton_clicked  ();
     void on_pushButton_2_clicked();
     void on_pushButton_3_clicked();
 
 private:
     Ui::MainWindow *ui;
-    GLFrame *GLFrame_1;
+    GLFrame *_GLFrame;
 
-    cv::Mat image1;
-    cv::Mat image2;
+    cv::Mat _image1;
+    cv::Mat _image2;
 
     QSound *_ping;
 
