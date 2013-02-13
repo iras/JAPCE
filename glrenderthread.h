@@ -48,7 +48,7 @@ private:
     QPoint _current_angles;
     QVector3D _o;
     float _camera_dist;
-    GLfloat m[16];
+    GLfloat _m[16];
 
     void drawGrid (void);
     void drawCurrentOriginAxes (void);
@@ -56,7 +56,7 @@ private:
 
     vector<vector<cv::Mat_<double> > > camera_pyramids;
 
-    void addLoaderAnim (void);
+    void addLoaderAnim    (void);
     void removeLoaderAnim (void);
 
     vector<vector<float> > _loader_anim;

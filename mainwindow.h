@@ -44,8 +44,9 @@ public:
     explicit MainWindow (QWidget *parent = 0);
     ~MainWindow ();
     
-    cv::Mat getFundamentalAndMatches (vector<cv::Point2f> *points1, vector<cv::Point2f> *points2, RobustMatcher rmatcher);
-    void doReconstructSweep (Reconstructor *rec, cv::Mat f, int image_rows, int image_cols, vector<cv::Point2f> *points1, vector<cv::Point2f> *points2);
+    cv::Mat getFundamentalAndMatches (vector<cv::Point2f> *points1, cv::Mat *img1, vector<cv::Point2f> *points2, cv::Mat *img2, RobustMatcher rmatcher);
+    void doReconstructionSweep (Reconstructor *rec, cv::Mat f, int image_rows, int image_cols, vector<cv::Point2f> *points1, vector<cv::Point2f> *points2);
+    void adjustMatrixToLatestOrigin (cv::Mat *P, cv::Mat *B);
 
 private slots:
     void on_pushButton_clicked  ();
@@ -56,8 +57,8 @@ private:
     Ui::MainWindow *ui;
     GLFrame *_GLFrame;
 
-    cv::Mat _image1;
-    cv::Mat _image2;
+    cv::Mat _image;
+    vector<cv::Mat> _vec_source_images;
 
     QSound *_ping;
 
@@ -65,6 +66,9 @@ private:
     clock_t _stop;
 
     MPointCloud *_pc;
+
+    cv::Mat_<double> _O; // origin
+    cv::Mat_<double> _B; // current base
 
 protected:
     void closeEvent (QCloseEvent *evt);

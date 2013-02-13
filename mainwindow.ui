@@ -52,7 +52,7 @@
       </font>
      </property>
      <property name="text">
-      <string>Open Image 1</string>
+      <string>Add image</string>
      </property>
     </widget>
     <widget class="QPushButton" name="pushButton_3">
@@ -70,10 +70,13 @@
       </font>
      </property>
      <property name="text">
-      <string>Open Image 2</string>
+      <string/>
      </property>
     </widget>
     <widget class="QPushButton" name="pushButton_2">
+     <property name="enabled">
+      <bool>false</bool>
+     </property>
      <property name="geometry">
       <rect>
        <x>0</x>

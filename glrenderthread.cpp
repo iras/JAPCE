@@ -19,8 +19,8 @@ GLRenderThread::GLRenderThread (GLFrame *_GLFrame) :
     _current_angles = QPoint (0,0);
 
     // init m with 4x4 identity matrix
-    for (int i=0; i<16; i++) {m[i] = 0;}
-    m[0]=1; m[5]=1; m[10]=1; m[15]=1;
+    for (int i=0; i<16; i++) {_m[i] = 0;}
+    _m[0]=1; _m[5]=1; _m[10]=1; _m[15]=1;
 
     // added loader's animation
     this->addLoaderAnim ();
@@ -294,9 +294,9 @@ void GLRenderThread::paintGL (void)
             GLfloat delta_x = q.x() - _last_pos.x();
             GLfloat delta_y = q.y() - _last_pos.y();
 
-            GLfloat vec_x = - m[0]*delta_x + m[1]*delta_y + m[2]*0 ;
-            GLfloat vec_y = - m[4]*delta_x + m[5]*delta_y + m[6]*0 ;
-            GLfloat vec_z = - m[8]*delta_x + m[9]*delta_y + m[10]*0 ;
+            GLfloat vec_x = - _m[0]*delta_x + _m[1]*delta_y + _m[2]*0 ;
+            GLfloat vec_y = - _m[4]*delta_x + _m[5]*delta_y + _m[6]*0 ;
+            GLfloat vec_z = - _m[8]*delta_x + _m[9]*delta_y + _m[10]*0 ;
 
             _o.setX (_o.x() + 0.03 * vec_x);
             _o.setY (_o.y() + 0.03 * vec_y);
@@ -329,7 +329,7 @@ void GLRenderThread::paintGL (void)
     glTranslatef (-_o.x(), -_o.y(), -_o.z()); // rotation around current origin.       Part 3/3
 
     // get the camera matrix (or anyway the main matrix) and put it into the GLfloat m[16].
-    glGetFloatv (GL_MODELVIEW_MATRIX, m);
+    glGetFloatv (GL_MODELVIEW_MATRIX, _m);
 
     // dispaly grid and current origin.
     this->drawGrid ();
@@ -356,7 +356,6 @@ void GLRenderThread::paintGL (void)
     glEnable (GL_POINT_SMOOTH);
     glPointSize (4.0);
     vector<vector<float> > *meta_temp;
-    cout << "pc size : " << _point_cloud->size() << endl;
     for (unsigned int i=0; i<_point_cloud->size(); i++)
     {
         meta_temp = _point_cloud->getSegment(i);
@@ -393,21 +392,21 @@ void GLRenderThread::addLoaderAnim (void)
     vector<float> temp;
     temp.resize (3); // fix temp size to 3 floats.
     vector<vector<float> > meta_temp;
-    meta_temp.clear();
+    meta_temp.clear ();
 
-    temp.clear();
+    temp.clear ();
     temp.push_back (20.0f);
     temp.push_back (0.0f);
     temp.push_back (-25.0f);
     _loader_anim.push_back (temp);
 
-    temp.clear();
+    temp.clear ();
     temp.push_back (20.0f);
     temp.push_back (0.0f);
     temp.push_back (-15.0f);
     _loader_anim.push_back (temp);
 
-    temp.clear();
+    temp.clear ();
     temp.push_back (20.0f);
     temp.push_back (0.0f);
     temp.push_back (-5.0f);
@@ -417,5 +416,5 @@ void GLRenderThread::addLoaderAnim (void)
 void GLRenderThread::removeLoaderAnim (void)
 {
     // remove old test points.
-    _loader_anim.clear();
+    _loader_anim.clear ();
 }

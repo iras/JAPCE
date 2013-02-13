@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading UI file 'mainwindow.ui'
 **
-** Created: Mon Feb 11 13:07:25 2013
+** Created: Mon Feb 11 15:44:13 2013
 **      by: Qt User Interface Compiler version 4.8.4
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
@@ -84,6 +84,7 @@ public:
         pushButton_3->setFont(font);
         pushButton_2 = new QPushButton(groupBox);
         pushButton_2->setObjectName(QString::fromUtf8("pushButton_2"));
+        pushButton_2->setEnabled(false);
         pushButton_2->setGeometry(QRect(0, 90, 101, 31));
         pushButton_2->setFont(font);
         groupBox_2 = new QGroupBox(centralWidget);
@@ -199,8 +200,8 @@ public:
     {
         MainWindow->setWindowTitle(QApplication::translate("MainWindow", "MainWindow", 0, QApplication::UnicodeUTF8));
         groupBox->setTitle(QApplication::translate("MainWindow", "camera input", 0, QApplication::UnicodeUTF8));
-        pushButton->setText(QApplication::translate("MainWindow", "Open Image 1", 0, QApplication::UnicodeUTF8));
-        pushButton_3->setText(QApplication::translate("MainWindow", "Open Image 2", 0, QApplication::UnicodeUTF8));
+        pushButton->setText(QApplication::translate("MainWindow", "Add image", 0, QApplication::UnicodeUTF8));
+        pushButton_3->setText(QString());
         pushButton_2->setText(QApplication::translate("MainWindow", "Start crunching", 0, QApplication::UnicodeUTF8));
         groupBox_2->setTitle(QApplication::translate("MainWindow", "camera calibration", 0, QApplication::UnicodeUTF8));
         pushButton_5->setText(QApplication::translate("MainWindow", "Start Calib", 0, QApplication::UnicodeUTF8));
