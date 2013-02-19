@@ -6,7 +6,7 @@
 #include <iostream>
 #include <vector>
 
-#include <mpointcloud.h>
+#include <pointcloud.h>
 
 #include <opencv2/core/core.hpp>
 using namespace std;
@@ -24,7 +24,7 @@ public:
     bool getCtrlMetaFlag ();
     bool getAltFlag ();
 
-    void delegateSetPointCloud (MPointCloud *point_cloud);
+    void delegateSetPointCloud (PointCloud *point_cloud);
     void DelegateCameraPyramidAddition  (cv::Mat_<double> &camera_matrix, int rows, int cols);
 
 signals:
@@ -36,7 +36,7 @@ protected:
     void resizeEvent (QResizeEvent *event);
     void paintEvent  (QPaintEvent *);
     void wheelEvent  (QWheelEvent *);
-    void keyPressEvent (QKeyEvent *event);
+    void keyPressEvent   (QKeyEvent *event);
     void keyReleaseEvent (QKeyEvent *event);
 
     GLRenderThread RenderThread;

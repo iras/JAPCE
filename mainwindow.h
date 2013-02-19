@@ -11,7 +11,8 @@
 #include "matcher.h"
 #include "reconstructor.h"
 #include "glframe.h"
-#include <mpointcloud.h>
+#include <pointcloud.h>
+#include <camerashot.h>
 
 // usual OpenCV imports
 
@@ -44,8 +45,19 @@ public:
     explicit MainWindow (QWidget *parent = 0);
     ~MainWindow ();
     
-    cv::Mat getFundamentalAndMatches (vector<cv::Point2f> *points1, cv::Mat *img1, vector<cv::Point2f> *points2, cv::Mat *img2, RobustMatcher rmatcher);
-    void doReconstructionSweep (Reconstructor *rec, cv::Mat f, int image_rows, int image_cols, vector<cv::Point2f> *points1, vector<cv::Point2f> *points2);
+    cv::Mat getFundamentalAndMatches (RobustMatcher rmatcher,
+                                      vector<cv::DMatch> *matches,
+                                      cv::Mat *img1, vector<cv::KeyPoint> *keypoints1,
+                                      cv::Mat *img2, vector<cv::KeyPoint> *keypoints2);
+
+    void    displayMatches           (cv::Mat f,
+                                      vector<cv::DMatch> *matches,
+                                      vector<cv::Point2f> *points1,
+                                      vector<cv::Point2f> *points2,
+                                      cv::Mat *img1,  vector<cv::KeyPoint> *keypoints1,
+                                      cv::Mat *img2,  vector<cv::KeyPoint> *keypoints2);
+
+    void doReconstructionSweep (Reconstructor *rec, cv::Mat f, int image_rows, int image_cols, vector<cv::Point2f> *points1, vector<cv::Point2f> *points2, vector<cv::Point3d> *pc_segment);
     void adjustMatrixToLatestOrigin (cv::Mat *P, cv::Mat *B);
 
 private slots:
@@ -58,14 +70,14 @@ private:
     GLFrame *_GLFrame;
 
     cv::Mat _image;
-    vector<cv::Mat> _vec_source_images;
+    vector<CameraShot> _camera_shots;
 
     QSound *_ping;
 
     clock_t _start;
     clock_t _stop;
 
-    MPointCloud *_pc;
+    PointCloud *_pc;
 
     cv::Mat_<double> _O; // origin
     cv::Mat_<double> _B; // current base
@@ -73,4 +85,5 @@ private:
 protected:
     void closeEvent (QCloseEvent *evt);
 };
+
 #endif // MAINWINDOW_H

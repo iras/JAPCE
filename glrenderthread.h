@@ -6,7 +6,7 @@
 #include <QtGui/QVector3D>
 #include <vector>
 #include <iostream>
-#include <mpointcloud.h>
+#include <pointcloud.h>
 
 #include <opencv2/core/core.hpp>
 
@@ -29,7 +29,7 @@ public:
     void stop (void);
     void updateCameraDistanceFromCenter (float dist);
 
-    void setPointCloud (MPointCloud *point_cloud);
+    void setPointCloud (PointCloud *point_cloud);
     void addCameraPyramid (cv::Mat_<double> &camera_matrix, int rows, int cols);
 
 protected:
@@ -60,7 +60,7 @@ private:
     void removeLoaderAnim (void);
 
     vector<vector<float> > _loader_anim;
-    MPointCloud *_point_cloud;
+    PointCloud *_point_cloud;
 
 signals:
 public slots:

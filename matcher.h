@@ -23,12 +23,14 @@
 #include <opencv2/highgui/highgui.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
 #include <opencv2/features2d/features2d.hpp>
-using namespace std;
-// NEW IMPORTS in OpenCV 2.4.2
+
+// NEW IMPORTS in OpenCV 2.4.3
 #include "opencv2/nonfree/nonfree.hpp"
 #include "opencv2/nonfree/features2d.hpp"
 #include "opencv2/photo/photo.hpp"
 #include <opencv2/legacy/legacy.hpp>
+
+using namespace std;
 
 
 class RobustMatcher
@@ -231,6 +233,7 @@ class RobustMatcher
             _features_image_1 = keypoints1.size ();
             _features_image_2 = keypoints2.size ();
         }
+
 
         // Match feature points using symmetry test and RANSAC
         // returns fundamental matrix

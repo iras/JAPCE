@@ -25,7 +25,7 @@ GLRenderThread::GLRenderThread (GLFrame *_GLFrame) :
     // added loader's animation
     this->addLoaderAnim ();
 
-    _point_cloud = new MPointCloud(); // create an empty MPointCloud instance so the render thread can render an empty point cloud, this instance will be replaced as soon as the main point cloud has at least one segment to render.
+    _point_cloud = new PointCloud(); // create an empty MPointCloud instance so that the render thread can render an empty point cloud, this instance will be replaced as soon as the main point cloud has at least one segment to render.
 }
 
 void GLRenderThread::resizeViewport (const QSize &size)
@@ -355,18 +355,20 @@ void GLRenderThread::paintGL (void)
     // display the point cloud
     glEnable (GL_POINT_SMOOTH);
     glPointSize (4.0);
-    vector<vector<float> > *meta_temp;
+    vector<cv::Point3d> *meta_temp;
     for (unsigned int i=0; i<_point_cloud->size(); i++)
     {
-        meta_temp = _point_cloud->getSegment(i);
+        PCSegment *pcs = _point_cloud->getPCSegment (i);
+        meta_temp = pcs->getVectorX ();
+
         for (unsigned int j=0; j<meta_temp->size(); j++)
         {
             glBegin (GL_POINTS);
 
             temp.clear();
-            vector<float>* temp ;
+            cv::Point3d *temp ;
             temp = &(meta_temp->at(j));
-            glVertex3f (temp->at(0), temp->at(1), temp->at(2)); glColor3f (1., 1. - float(i), 0.);
+            glVertex3f (temp->x, temp->y, temp->z); glColor3f (1., 1. - float(i), 0.);
             glEnd ();
         }
     }
@@ -377,7 +379,7 @@ void GLRenderThread::updateCameraDistanceFromCenter (float dist)
     _camera_dist += dist * 0.01;
 }
 
-void GLRenderThread::setPointCloud (MPointCloud *point_cloud)
+void GLRenderThread::setPointCloud (PointCloud *point_cloud)
 {
     _point_cloud = point_cloud;
 }

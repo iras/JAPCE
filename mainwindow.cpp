@@ -24,11 +24,10 @@ MainWindow::MainWindow (QWidget *parent) :
     time_t result = time(NULL);
     ui->label_8->setText ("started approx at \n" + QString (std::asctime (std::localtime (&result))));
 
-    _pc = new MPointCloud ();
+    _pc = new PointCloud ();
 
     _O = (cv::Mat_<double>(3,4) <<  1,0,0,0,  0,1,0,0,  0,0,1,0);
     _B = _O;
-
 }
 
 MainWindow::~MainWindow ()
@@ -49,11 +48,11 @@ void MainWindow::on_pushButton_clicked ()
     _image = cv::imread (filename.toAscii().data ());
     cv::cvtColor (_image, _image, CV_BGR2GRAY);
 
-    // TODO : check that the images are all of the same size.
+    // TODO : check that the images are all of the same size before pushing each back.
 
-    _vec_source_images.push_back (_image);
+    _camera_shots.push_back (CameraShot (_image));
 
-    if (_vec_source_images.size()>1) {ui->pushButton_2->setEnabled (TRUE);}
+    if (_camera_shots.size()>1) {ui->pushButton_2->setEnabled (TRUE);}
 
     //cout << filename1.toAscii().data() << endl;
     //cv::namedWindow ("Original Image 1");
@@ -79,27 +78,37 @@ void MainWindow::on_pushButton_2_clicked ()
 
     int image_rows = _image.rows;
     int image_cols = _image.cols;
+    Reconstructor rec; // init the reconstructor
     _GLFrame->delegateSetPointCloud (_pc);
-    Reconstructor rec; // set the reconstructor up.
 
-    ///////////////////////////////////////////////////////////////
-
-    vector<cv::Point2f> points1;
-    vector<cv::Point2f> points2;
-
-    for (unsigned int n=0; n<_vec_source_images.size()-1; n++)
+    for (unsigned int n=0; n<_camera_shots.size()-1; n++)
     {
-        points1.clear();
-        points2.clear();
+        _pc->addPCSegment (&(_camera_shots[n]), &(_camera_shots[n+1]));
+        PCSegment *pcs = _pc->getPCSegment (n);
 
-        // match two images
-        cv::Mat f = this->getFundamentalAndMatches (&points1, &_vec_source_images[n], &points2, &_vec_source_images[n+1], rmatcher);
+        // match two camera shots
+        cv::Mat f = this->getFundamentalAndMatches (rmatcher,
+                                                    pcs->getMatches (),
+                                                    _camera_shots[n].getImage(),   _camera_shots[n].getKeyPoints(),
+                                                    _camera_shots[n+1].getImage(), _camera_shots[n+1].getKeyPoints());
 
-        // 3d reconstruction. (point cloud extraction and display)
-        this->doReconstructionSweep (&rec, f, image_rows, image_cols, &points1, &points2);
+        pcs->squeezePointsVectorsOutOfMatches ();
+
+        this->displayMatches (f,
+                              pcs->getMatches (),
+                              pcs->getPoints1 (),
+                              pcs->getPoints2 (),
+                              _camera_shots[n].getImage(),   _camera_shots[n].getKeyPoints(),
+                              _camera_shots[n+1].getImage(), _camera_shots[n+1].getKeyPoints());
+
+        // do 3d reconstruction. (point cloud extraction and display)
+        this->doReconstructionSweep (&rec,
+                                     f,
+                                     image_rows, image_cols,
+                                     pcs->getPoints1 (),
+                                     pcs->getPoints2 (),
+                                     pcs->getVectorX ());
     }
-
-    ///////////////////////////////////////////////////////////////
 
     // display the execution time
     _stop = clock ();
@@ -112,75 +121,88 @@ void MainWindow::on_pushButton_2_clicked ()
     _ping->play ();
 }
 
-cv::Mat MainWindow::getFundamentalAndMatches (vector<cv::Point2f> *points1, cv::Mat *img1, vector<cv::Point2f> *points2, cv::Mat *img2, RobustMatcher rmatcher)
+
+cv::Mat MainWindow::getFundamentalAndMatches (RobustMatcher rmatcher,
+                                              vector<cv::DMatch> *matches,
+                                              cv::Mat *img1,  vector<cv::KeyPoint> *keypoints1,
+                                              cv::Mat *img2,  vector<cv::KeyPoint> *keypoints2)
 {
-    vector<cv::DMatch> matches;
-    vector<cv::KeyPoint> keypoints1, keypoints2;
-    rmatcher.detectFeatures (*img1, *img2, keypoints1, keypoints2);
+    rmatcher.detectFeatures (*img1, *img2, *keypoints1, *keypoints2);
     ui->label_3->setText (QString::number (rmatcher.getNumberFeaturesImage1 ()));
     ui->label_5->setText (QString::number (rmatcher.getNumberFeaturesImage2 ()));
-    cv::Mat f = rmatcher.match (*img1, *img2, matches, keypoints1, keypoints2);
+    cv::Mat f = rmatcher.match (*img1, *img2, *matches, *keypoints1, *keypoints2);
 
+    return f;
+}
+
+void MainWindow::displayMatches (cv::Mat f,
+                                 vector<cv::DMatch>  *matches,
+                                 vector<cv::Point2f> *points1,
+                                 vector<cv::Point2f> *points2,
+                                 cv::Mat *img1,  vector<cv::KeyPoint> *keypoints1,
+                                 cv::Mat *img2,  vector<cv::KeyPoint> *keypoints2)
+{
     // plot the matches
     cv::Mat imageMatches;
-    // change the images format to BGR otherwise we can't see points in red.
-    // ------ cv::cvtColor (*img1, *img1, CV_GRAY2BGR);
-    // ------ cv::cvtColor (*img2, *img2, CV_GRAY2BGR);
-    //               1st image + keypoints  2nd image + keypoints  matches   achieved image   lines colour
-    // ------ cv::drawMatches (*img1, keypoints1,    *img2, keypoints2,    matches,  imageMatches,    cv::Scalar (200,200,0));
+    // clone images and change the image format to BGR otherwise we can't see points in red.
+    cv::Mat img1_clone = img1->clone ();
+    cv::Mat img2_clone = img2->clone ();
+    cv::cvtColor (img1_clone, img1_clone, CV_GRAY2BGR);
+    cv::cvtColor (img2_clone, img2_clone, CV_GRAY2BGR);
+
     /*
     // place Qt image.
+    //                 1st image + keypoints     2nd image + keypoints      matches   achieved image   lines colour
+    //cv::drawMatches (img1_clone, *keypoints1,  img2_clone, *keypoints2,  *matches,  imageMatches,    cv::Scalar (0,0,255));
     QImage img = QImage ((uchar*)imageMatches.data, imageMatches.cols, imageMatches.rows, imageMatches.step, QImage::Format_RGB888 );
     ui->label->setPixmap (QPixmap::fromImage (img)); // display on label
     ui->label->resize (ui->label->pixmap()->size()); // resize the label to fit the image
     */
 
-    // get Point2f vector from keypoints vector
-    for (vector<cv::DMatch>::const_iterator it=matches.begin(); it!=matches.end(); ++it)
-    {
-        float x1 = keypoints1 [it->queryIdx].pt.x;
-        float y1 = keypoints1 [it->queryIdx].pt.y;
-        points1->push_back (cv::Point2f (x1,y1));
-        // ------ cv::circle (*img1, cv::Point (x1,y1), 4, cv::Scalar(0,0,255), 3); // B G R
+    // red circle the matches.
+    for (unsigned int i = 0; i<points1->size(); i++)
+        {
+            cv::Point2f p1 = points1->at(i);
+            cv::circle (img1_clone, p1, 4, cv::Scalar(0,0,255), 3); // B G R
 
-        float x2 = keypoints2 [it->trainIdx].pt.x;
-        float y2 = keypoints2 [it->trainIdx].pt.y;
-        points2->push_back (cv::Point2f (x2,y2));
-        // ------ cv::circle (*img2, cv::Point (x2,y2), 4, cv::Scalar(0,0,255), 3); // B G R
-    }
+            cv::Point2f p2 = points2->at(i);
+            cv::circle (img2_clone, p2, 4, cv::Scalar(0,0,255), 3); // B G R
+        }
 
     // draw epipolar lines
     // 1st image
     vector<cv::Vec3f> lines1;
     cv::computeCorrespondEpilines (cv::Mat (*points1), 1, f, lines1);
-    for (vector<cv::Vec3f>::const_iterator it= lines1.begin(); it!=lines1.end(); ++it)
+    for (vector<cv::Vec3f>::const_iterator it = lines1.begin(); it!=lines1.end(); ++it)
     {
-        // ------ cv::line  (*img2,cv::Point (0,-(*it)[2]/(*it)[1]),
-        // ------ cv::Point ((*img2).cols,-((*it)[2]+(*it)[0]*(*img2).cols)/(*it)[1]),
-        // ------ cv::Scalar (100,160,100));
+        cv::line  (img2_clone, cv::Point (0,-(*it)[2]/(*it)[1]),
+        cv::Point (img2_clone.cols, -((*it)[2]+(*it)[0] * img2_clone.cols)/(*it)[1]),  cv::Scalar (100,160,100));
     }
     // 2nd image
     vector<cv::Vec3f> lines2;
     cv::computeCorrespondEpilines (cv::Mat (*points2), 2, f, lines2);
-    for (vector<cv::Vec3f>::const_iterator it= lines2.begin(); it!=lines2.end(); ++it)
+    for (vector<cv::Vec3f>::const_iterator it = lines2.begin(); it!=lines2.end(); ++it)
     {
-        // ------ cv::line  (*img1, cv::Point(0,-(*it)[2]/(*it)[1]),
-        // ------ cv::Point ((*img1).cols,-((*it)[2]+(*it)[0]*(*img1).cols)/(*it)[1]),
-        // ------ cv::Scalar (100,150,100));
+        cv::line  (img1_clone, cv::Point(0,-(*it)[2]/(*it)[1]),
+        cv::Point (img1_clone.cols, -((*it)[2]+(*it)[0] * img1_clone.cols)/(*it)[1]),  cv::Scalar (100,150,100));
     }
 
     // display images with epipolar lines separately from the main window.
     //cv::namedWindow ("Right Image - Epilines (RANSAC)");
-    cv::imshow ("Right Image Epilines (RANSAC)", *img1);
+    cv::imshow ("Right Image Epilines (RANSAC)", img1_clone);
     //cv::namedWindow ("Left Image - Epilines (RANSAC)");
-    cv::imshow ("Left Image Epilines (RANSAC)",  *img2);
-
-    return f;
+    cv::imshow ("Left Image Epilines (RANSAC)",  img2_clone);
 }
 
-void MainWindow::doReconstructionSweep (Reconstructor *rec, cv::Mat f, int image_rows, int image_cols, vector<cv::Point2f> *points1, vector<cv::Point2f> *points2)
+
+void MainWindow::doReconstructionSweep (Reconstructor *rec,
+                                        cv::Mat f,
+                                        int image_rows,  int image_cols,
+                                        vector<cv::Point2f> *points1,
+                                        vector<cv::Point2f> *points2,
+                                        vector<cv::Point3d> *pc_segment)
 {
-    vector<vector<float> > pc_segment;
+    vector<cv::Point3d> *pc_segment_ref = pc_segment;
 
     cv::Mat_<double> P1 = _O;
     cv::Mat_<double> P2 = rec->pickTheRightP (P1, rec->getPCandidatesfromFundamentalMtx ((cv::Mat_<double>)f), *points1, *points2);
@@ -189,27 +211,21 @@ void MainWindow::doReconstructionSweep (Reconstructor *rec, cv::Mat f, int image
     _B = P2.clone (); // set to P2 so it's ready for the next sweep. TODO : This assignment needs to be taken out of the function doReconstructionSweep (...) otherwise it's confusing.
 
     cv::Mat_<double> x1, x2;
-    cv::Mat_<double> tmp;
-    double* tmpp;
-    vector<float> temp;
-    temp.resize (3); // fix temp size to 3 floats.
+    cv::Mat_<double> X; // 3D coordinates for a reconstructed point.
+    double* p;
+    cv::Point3d point;
 
     for (unsigned int i=0; i < points1->size(); i++)
     {
         x1 = (cv::Mat_<double>(3,1) <<  (points1->at(i)).x, (points1->at(i)).y, 1.0);
         x2 = (cv::Mat_<double>(3,1) <<  (points2->at(i)).x, (points2->at(i)).y, 1.0);
 
-        tmp = rec->triangulate (x1, x2, P1, P2);
+        X = rec->triangulate (x1, x2, P1, P2);
 
-        tmpp = tmp.ptr<double>(0);
-        temp.clear();
-        temp.push_back (float (tmpp[0])); // create vector of coordinates
-        temp.push_back (float (tmpp[1]));
-        temp.push_back (float (tmpp[2]));
-        pc_segment.push_back (temp); // push the vector temp into the point_cloud vector.
+        p = X.ptr<double>(0);
+        point = cv::Point3d (p[0], p[1], p[2]);
+        pc_segment_ref->push_back (point); // push the vector point into the vector pc_segment.
     }
-
-    _pc->addSegment (&pc_segment);
 
     _GLFrame->DelegateCameraPyramidAddition (P1, image_rows, image_cols);
     _GLFrame->DelegateCameraPyramidAddition (P2, image_rows, image_cols);
