@@ -25,7 +25,7 @@ GLRenderThread::GLRenderThread (GLFrame *_GLFrame) :
     // added loader's animation
     this->addLoaderAnim ();
 
-    _point_cloud = new PointCloud(); // create an empty MPointCloud instance so that the render thread can render an empty point cloud, this instance will be replaced as soon as the main point cloud has at least one segment to render.
+    _point_cloud = new PointCloud(); // create an empty PointCloud instance so that the render thread can render an empty point cloud, this instance will be replaced as soon as the main point cloud has at least one segment to render.
 }
 
 void GLRenderThread::resizeViewport (const QSize &size)
