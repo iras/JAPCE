@@ -44,6 +44,8 @@ class MainWindow : public QMainWindow
 public:
     explicit MainWindow (QWidget *parent = 0);
     ~MainWindow ();
+
+    void test ();
     
     cv::Mat getFundamentalAndMatches (RobustMatcher rmatcher,
                                       vector<cv::DMatch> *matches,
@@ -58,6 +60,9 @@ public:
                                       cv::Mat *img2,  vector<cv::KeyPoint> *keypoints2);
 
     void doReconstructionSweep (Reconstructor *rec, cv::Mat f, int image_rows, int image_cols, vector<cv::Point2f> *points1, vector<cv::Point2f> *points2, vector<cv::Point3d> *pc_segment);
+
+    void doPCSegmentsRegistration (void);
+
     void adjustMatrixToLatestOrigin (cv::Mat *P, cv::Mat *B);
 
 private slots:
@@ -80,7 +85,7 @@ private:
     PointCloud *_pc;
 
     cv::Mat_<double> _O; // origin
-    cv::Mat_<double> _B; // current base
+    //cv::Mat_<double> _B; // current base
 
 protected:
     void closeEvent (QCloseEvent *evt);

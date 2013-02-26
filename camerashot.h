@@ -24,6 +24,7 @@ private:
 
     cv::Mat _image;
     vector<cv::KeyPoint> _keypoints;
+
 };
 
 #endif // CAMERASHOT_H

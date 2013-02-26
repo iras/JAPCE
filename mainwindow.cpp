@@ -27,8 +27,29 @@ MainWindow::MainWindow (QWidget *parent) :
     _pc = new PointCloud ();
 
     _O = (cv::Mat_<double>(3,4) <<  1,0,0,0,  0,1,0,0,  0,0,1,0);
-    _B = _O;
+    //_B = _O;
+
+
+    test ();
 }
+
+void MainWindow::test ()
+{
+    vector<cv::Point3f> first, second;
+    vector<uchar> inliers;
+    cv::Mat aff(3,4,CV_64F);
+
+    for (int i = 0; i <6; i++)
+    {
+        first.push_back(cv::Point3f(i,i%3,1));
+        second.push_back(cv::Point3f(i,i%3,1));
+    }
+
+    int ret = cv::estimateAffine3D(first, second, aff, inliers);
+    cout << aff << endl;
+    cout << endl;
+}
+
 
 MainWindow::~MainWindow ()
 {
@@ -143,7 +164,7 @@ void MainWindow::displayMatches (cv::Mat f,
                                  cv::Mat *img2,  vector<cv::KeyPoint> *keypoints2)
 {
     // plot the matches
-    cv::Mat imageMatches;
+
     // clone images and change the image format to BGR otherwise we can't see points in red.
     cv::Mat img1_clone = img1->clone ();
     cv::Mat img2_clone = img2->clone ();
@@ -151,6 +172,7 @@ void MainWindow::displayMatches (cv::Mat f,
     cv::cvtColor (img2_clone, img2_clone, CV_GRAY2BGR);
 
     /*
+     cv::Mat imageMatches;
     // place Qt image.
     //                 1st image + keypoints     2nd image + keypoints      matches   achieved image   lines colour
     //cv::drawMatches (img1_clone, *keypoints1,  img2_clone, *keypoints2,  *matches,  imageMatches,    cv::Scalar (0,0,255));
@@ -208,7 +230,7 @@ void MainWindow::doReconstructionSweep (Reconstructor *rec,
     cv::Mat_<double> P2 = rec->pickTheRightP (P1, rec->getPCandidatesfromFundamentalMtx ((cv::Mat_<double>)f), *points1, *points2);
     //this->adjustMatrixToLatestOrigin (&P1, &_B); // this is redundant as P1 oould've been set straight to the value in _B.
     //this->adjustMatrixToLatestOrigin (&P2, &_B);
-    _B = P2.clone (); // set to P2 so it's ready for the next sweep. TODO : This assignment needs to be taken out of the function doReconstructionSweep (...) otherwise it's confusing.
+    //_B = P2.clone (); // set to P2 so it's ready for the next sweep. TODO : This assignment needs to be taken out of the function doReconstructionSweep (...) otherwise it's confusing.
 
     cv::Mat_<double> x1, x2;
     cv::Mat_<double> X; // 3D coordinates for a reconstructed point.
@@ -232,7 +254,11 @@ void MainWindow::doReconstructionSweep (Reconstructor *rec,
 }
 
 
-void MainWindow::adjustMatrixToLatestOrigin (cv::Mat *P, cv::Mat *B)
+void MainWindow::doPCSegmentsRegistration (void) // align 2 point cloud segments
+{
+}
+
+void MainWindow::adjustMatrixToLatestOrigin (cv::Mat *P, cv::Mat *B)  // TODO : remove this function, the solvePnP will replace this function.
 {
     // the camera matrix is a 3x4 matrix [R|t]where R is the rotation matrix and t is the translation vector.
     // Both *P and *B are like the above's matrix. The adjustment consists of changing *P's basis.
