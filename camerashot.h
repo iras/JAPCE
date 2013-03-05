@@ -17,13 +17,19 @@ public:
 
     cv::Mat *getImage (void);
 
+    cv::Mat_<double> *getP (void);
+
     vector<cv::KeyPoint> *getKeyPoints (void);
+
     void setKeyPoints (vector<cv::KeyPoint> kpts);
 
 private:
 
     cv::Mat _image;
+
     vector<cv::KeyPoint> _keypoints;
+
+    cv::Mat_<double> _P;
 
 };
 

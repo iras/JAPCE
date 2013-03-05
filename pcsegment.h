@@ -10,6 +10,7 @@
 using namespace std;
 
 
+// Point Cloud Segment class.
 class PCSegment
 {
 
@@ -22,6 +23,9 @@ public:
 
     vector<cv::Point2f> *getPoints1 (void);
     vector<cv::Point2f> *getPoints2 (void);
+
+    CameraShot *getCamShot1 (void);
+    CameraShot *getCamShot2 (void);
 
     void squeezePointsVectorsOutOfMatches (void);
 

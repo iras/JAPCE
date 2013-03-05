@@ -42,6 +42,7 @@ class MainWindow : public QMainWindow
     Q_OBJECT
     
 public:
+
     explicit MainWindow (QWidget *parent = 0);
     ~MainWindow ();
 
@@ -52,25 +53,44 @@ public:
                                       cv::Mat *img1, vector<cv::KeyPoint> *keypoints1,
                                       cv::Mat *img2, vector<cv::KeyPoint> *keypoints2);
 
-    void    displayMatches           (cv::Mat f,
-                                      vector<cv::DMatch> *matches,
-                                      vector<cv::Point2f> *points1,
-                                      vector<cv::Point2f> *points2,
-                                      cv::Mat *img1,  vector<cv::KeyPoint> *keypoints1,
-                                      cv::Mat *img2,  vector<cv::KeyPoint> *keypoints2);
+    void displayMatches          (cv::Mat f,
+                                  vector<cv::DMatch> *matches,
+                                  vector<cv::Point2f> *points1,
+                                  vector<cv::Point2f> *points2,
+                                  cv::Mat *img1,  vector<cv::KeyPoint> *keypoints1,
+                                  cv::Mat *img2,  vector<cv::KeyPoint> *keypoints2);
 
-    void doReconstructionSweep (Reconstructor *rec, cv::Mat f, int image_rows, int image_cols, vector<cv::Point2f> *points1, vector<cv::Point2f> *points2, vector<cv::Point3d> *pc_segment);
+    cv::Mat_<double> calculateP2 (Reconstructor *rec,
+                                  cv::Mat_<double> P1,
+                                  cv::Mat_<double> f,
+                                  vector<cv::Point2f> *points1,
+                                  vector<cv::Point2f> *points2,
+                                  PCSegment *prev_pcs,
+                                  PCSegment *pcs);
 
-    void doPCSegmentsRegistration (void);
+    void doTriangulationSweep    (Reconstructor *rec,
+                                  cv::Mat_<double> *P1,
+                                  cv::Mat_<double> *P2,
+                                  int image_rows,  int image_cols,
+                                  vector<cv::Point2f> *points1,
+                                  vector<cv::Point2f> *points2,
+                                  vector<cv::Point3d> *pc_segment);
 
-    void adjustMatrixToLatestOrigin (cv::Mat *P, cv::Mat *B);
+    cv::Mat doPCSegmentsRegistration (vector<cv::Point3f> *cs1_X,
+                                      vector<cv::Point3f> *cs2_X);
+
+    void adjustMatrixToLatestOrigin (cv::Mat *P,
+                                     cv::Mat *B);
+
 
 private slots:
-    void on_pushButton_clicked  ();
-    void on_pushButton_2_clicked();
-    void on_pushButton_3_clicked();
+
+    void on_pushButton_clicked   ();
+    void on_pushButton_2_clicked ();
+    void on_pushButton_3_clicked ();
 
 private:
+
     Ui::MainWindow *ui;
     GLFrame *_GLFrame;
 
@@ -85,9 +105,12 @@ private:
     PointCloud *_pc;
 
     cv::Mat_<double> _O; // origin
-    //cv::Mat_<double> _B; // current base
+    cv::Mat_<double> _B; // temp tranform
+
+    cv::Mat_<double> _K;
 
 protected:
+
     void closeEvent (QCloseEvent *evt);
 };
 

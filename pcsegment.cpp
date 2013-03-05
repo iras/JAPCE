@@ -33,6 +33,16 @@ vector<cv::Point2f> *PCSegment::getPoints2 (void)
     return &_points2;
 }
 
+CameraShot *PCSegment::getCamShot1 (void)
+{
+    return _cs1;
+}
+
+CameraShot *PCSegment::getCamShot2 (void)
+{
+    return _cs2;
+}
+
 void PCSegment::squeezePointsVectorsOutOfMatches (void)
 {
     float x1, y1, x2, y2;

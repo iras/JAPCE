@@ -10,6 +10,7 @@
 using namespace std;
 
 
+// Point Cloud class is a collection of PCSegment instances.
 class PointCloud
 {
 
