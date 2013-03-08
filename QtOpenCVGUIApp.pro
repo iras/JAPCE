@@ -50,22 +50,21 @@ LIBS += -L/opt/local/lib/ -lopencv_core \
 
 
 # PCL library
-INCLUDEPATH += /opt/local/include/eigen3
+INCLUDEPATH += /opt/local/include/eigen3 \
+               /opt/local/include/flann/
 
 #INCLUDEPATH += /opt/local/include/boost
 LIBS += -L/opt/local/lib/ -lboost_system-mt
 
-INCLUDEPATH +=  /usr/local/include/pcl-1.7/ \
-                /usr/local/include/flann/ \
-                /usr/local/include/openni/
+INCLUDEPATH +=  /usr/local/include/pcl-1.7/pcl/
 
-LIBS += -lOpenNI \
-        -lpcl_io \
-        -lpcl_common \
-        -lpcl_filters \
-        -lpcl_kdtree \
-        -lpcl_registration \
-        -lpcl_features \
-        -lpcl_search \
-        -lpcl_segmentation
+LIBS += -L/usr/local/lib/ -lpcl_common \-lpcl_io \
+                          -lpcl_sample_consensus \
+                          -lpcl_registration \
+                          -lpcl_segmentation \
+                          -lpcl_features \
+                          -lpcl_filters \
+                          -lpcl_kdtree \
+                          -lpcl_search
+
 
