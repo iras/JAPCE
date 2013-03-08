@@ -56,15 +56,16 @@ INCLUDEPATH += /opt/local/include/eigen3 \
 #INCLUDEPATH += /opt/local/include/boost
 LIBS += -L/opt/local/lib/ -lboost_system-mt
 
-INCLUDEPATH +=  /usr/local/include/pcl-1.7/pcl/
+INCLUDEPATH +=  /usr/local/include/pcl-1.7/
 
-LIBS += -L/usr/local/lib/ -lpcl_common \-lpcl_io \
+LIBS += -L/usr/local/lib/ -lpcl_common \
                           -lpcl_sample_consensus \
                           -lpcl_registration \
                           -lpcl_segmentation \
                           -lpcl_features \
                           -lpcl_filters \
                           -lpcl_kdtree \
-                          -lpcl_search
+                          -lpcl_search \
+                          -lpcl_io
 
 
