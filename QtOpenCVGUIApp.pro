@@ -33,7 +33,7 @@ HEADERS  += mainwindow.h\
 
 FORMS    += mainwindow.ui
 
-include (model/model.pri)
+#include (model/model.pri)
 
 # OpenCV library
 INCLUDEPATH += /opt/local/include/
@@ -51,8 +51,8 @@ LIBS += -L/opt/local/lib/ -lopencv_core \
 
 # PCL library
 INCLUDEPATH += /opt/local/include/eigen3
-#INCLUDEPATH += /opt/local/include/boost
 
+#INCLUDEPATH += /opt/local/include/boost
 LIBS += -L/opt/local/lib/ -lboost_system-mt
 
 INCLUDEPATH +=  /usr/local/include/pcl-1.7/ \
@@ -61,8 +61,11 @@ INCLUDEPATH +=  /usr/local/include/pcl-1.7/ \
 
 LIBS += -lOpenNI \
         -lpcl_io \
+        -lpcl_common \
         -lpcl_filters \
         -lpcl_kdtree \
         -lpcl_registration \
         -lpcl_features \
+        -lpcl_search \
         -lpcl_segmentation
+
