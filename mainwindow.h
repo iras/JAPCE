@@ -27,6 +27,7 @@
 #include "opencv2/nonfree/features2d.hpp"
 #include "opencv2/photo/photo.hpp"
 #include <opencv2/legacy/legacy.hpp>
+#include <opencv2/gpu/gpu.hpp>
 
 class GLFrame;
 
@@ -71,7 +72,6 @@ public:
     void doTriangulationSweep    (Reconstructor *rec,
                                   cv::Mat_<double> *P1,
                                   cv::Mat_<double> *P2,
-                                  int image_rows,  int image_cols,
                                   vector<cv::Point2f> *points1,
                                   vector<cv::Point2f> *points2,
                                   vector<cv::Point3d> *pc_segment);

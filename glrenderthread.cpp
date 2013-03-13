@@ -368,7 +368,7 @@ void GLRenderThread::paintGL (void)
             temp.clear();
             cv::Point3d *temp ;
             temp = &(meta_temp->at(j));
-            glVertex3f (temp->x, temp->y, temp->z); glColor3f (1., 1. - float(i), 0.);
+            glVertex3f (temp->x, temp->y, temp->z); glColor3f (1., 1. - float(i)/float(_point_cloud->size()), 0.);
             glEnd ();
         }
     }
