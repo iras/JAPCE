@@ -3,7 +3,7 @@ JAPCE
 
 ver 0.0.1
 
-JA-series Point Cloud Extractor written in C++ and Qt Framework using openCV and openGL.
+JA-series Point Cloud Extractor written in C++ and Qt Framework using openCV, PCL and openGL.
 
 ![JAPCE early screenshot](http://www.stc0.co.uk/early_JAPCE_screenshot.jpg)
 
