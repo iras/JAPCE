@@ -9,7 +9,7 @@ QT += core gui opengl
 TARGET = QtOpenCVGUIApp
 TEMPLATE = app
 
-# the two QMAKE flags spare the system from getting an annoying "error: explicit instantiation of 'std::basic_ostream but no definition available"
+# the two QMAKE flags save the system from getting an annoying "error: explicit instantiation of 'std::basic_ostream but no definition available"
 QMAKE_CFLAGS_X86_64  += -mmacosx-version-min=10.8
 QMAKE_CXXFLAGS_X86_64 = -mmacosx-version-min=10.8
 

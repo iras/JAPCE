@@ -21,8 +21,6 @@
 #include <opencv2/imgproc/imgproc.hpp>
 #include <opencv2/features2d/features2d.hpp>
 
-// NEW IMPORTS in OpenCV 2.4.3
-
 #include "opencv2/nonfree/nonfree.hpp"
 #include "opencv2/nonfree/features2d.hpp"
 #include "opencv2/photo/photo.hpp"
@@ -61,27 +59,7 @@ public:
                                   cv::Mat *img1,  vector<cv::KeyPoint> *keypoints1,
                                   cv::Mat *img2,  vector<cv::KeyPoint> *keypoints2);
 
-    cv::Mat_<double> calculateP2 (Reconstructor *rec,
-                                  cv::Mat_<double> P1,
-                                  cv::Mat_<double> f,
-                                  vector<cv::Point2f> *points1,
-                                  vector<cv::Point2f> *points2,
-                                  PCSegment *prev_pcs,
-                                  PCSegment *pcs);
-
-    void doTriangulationSweep    (Reconstructor *rec,
-                                  cv::Mat_<double> *P1,
-                                  cv::Mat_<double> *P2,
-                                  vector<cv::Point2f> *points1,
-                                  vector<cv::Point2f> *points2,
-                                  vector<cv::Point3d> *pc_segment);
-
-    cv::Mat doPCSegmentsRegistration (vector<cv::Point3f> *cs1_X,
-                                      vector<cv::Point3f> *cs2_X);
-
-    void adjustMatrixToLatestOrigin (cv::Mat *P,
-                                     cv::Mat *B);
-
+    void doPCSegmentsRegistration (PointCloud *pc);
 
 private slots:
 
@@ -105,7 +83,6 @@ private:
     PointCloud *_pc;
 
     cv::Mat_<double> _O; // origin
-    cv::Mat_<double> _B; // temp tranform
 
     cv::Mat_<double> _K;
 

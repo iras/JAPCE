@@ -46,7 +46,10 @@ cv::Mat_<double> *Reconstructor::getPCandidatesfromFundamentalMtx (cv::Mat_<doub
 
 
 
-cv::Mat_<double> Reconstructor::pickTheRightP (cv::Mat_<double> P1, cv::Mat_<double> *list_possible_P2s, vector<cv::Point2f> points1, vector<cv::Point2f> points2)
+cv::Mat_<double> Reconstructor::calculateP2 (cv::Mat_<double> P1,
+                                             cv::Mat_<double> *list_possible_P2s,
+                                             vector<cv::Point2f> points1,
+                                             vector<cv::Point2f> points2)
 {
     cv::Mat_<double> X, x1, x2, reproject_x1, reproject_x2;
     double sum_rx1, sum_rx2;
@@ -96,7 +99,10 @@ cv::Mat_<double> Reconstructor::pickTheRightP (cv::Mat_<double> P1, cv::Mat_<dou
 
 
 // Point pair triangulation from least squares solution.
-cv::Mat_<double> Reconstructor::triangulate (cv::Mat_<double> x1, cv::Mat_<double> x2, cv::Mat_<double> P1, cv::Mat_<double> P2)
+cv::Mat_<double> Reconstructor::triangulate (cv::Mat_<double> x1,
+                                             cv::Mat_<double> x2,
+                                             cv::Mat_<double> P1,
+                                             cv::Mat_<double> P2)
 {
     cv::Mat_<double> K = (cv::Mat_<double>(3,3) << 3117.75, 0, 1629.3,   0, 3117.74, 1218.01,   0, 0, 1);
     cv::Mat_<double> Kinv = K.inv();
@@ -131,6 +137,32 @@ cv::Mat_<double> Reconstructor::triangulate (cv::Mat_<double> x1, cv::Mat_<doubl
     cv::Mat_<double> X = (cv::Mat_<double>(4,1)  <<  vt(5,0)*rcpr, vt(5,1)*rcpr, vt(5,2)*rcpr, vt(5,3)*rcpr);
 
     return X;
+}
+
+
+
+void Reconstructor::doTriangulationSweep (cv::Mat_<double> *P1,
+                                          cv::Mat_<double> *P2,
+                                          vector<cv::Point2f> *points1,
+                                          vector<cv::Point2f> *points2,
+                                          vector<cv::Point3d> *vector3d)
+{
+    cv::Mat_<double> x1, x2;
+    cv::Mat_<double> X; // 3D coordinates for a reconstructed point.
+    double* p;
+    cv::Point3d point;
+
+    for (unsigned int i=0; i < points1->size(); i++)
+    {
+        x1 = (cv::Mat_<double>(3,1) <<  (points1->at(i)).x, (points1->at(i)).y, 1.0);
+        x2 = (cv::Mat_<double>(3,1) <<  (points2->at(i)).x, (points2->at(i)).y, 1.0);
+
+        X = this->triangulate (x1, x2, *P1, *P2);
+
+        p = X.ptr<double>(0);
+        point = cv::Point3d (p[0], p[1], p[2]);
+        vector3d->push_back (point); // push the vector point into the vector pc_segment.
+    }
 }
 
 
