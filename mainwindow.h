@@ -53,11 +53,12 @@ public:
                                       cv::Mat *img2, vector<cv::KeyPoint> *keypoints2);
 
     void displayMatches          (cv::Mat f,
-                                  vector<cv::DMatch> *matches,
+                                  //vector<cv::DMatch> *matches,
                                   vector<cv::Point2f> *points1,
                                   vector<cv::Point2f> *points2,
-                                  cv::Mat *img1,  vector<cv::KeyPoint> *keypoints1,
-                                  cv::Mat *img2,  vector<cv::KeyPoint> *keypoints2);
+                                  cv::Mat *img1, //vector<cv::KeyPoint> *keypoints1,
+                                  cv::Mat *img2  //vector<cv::KeyPoint> *keypoints2
+                                  );
 
     void doPCSegmentsRegistration (PointCloud *pc);
 

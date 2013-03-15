@@ -1,7 +1,7 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 
-// pcl imports : they need to be here temporarily to avoid BOOST_JOIN error. That's down to an old QT bug that should've been fixed now. That also entails I can't extract the function doPCSegmentsRegistration into another class for the time being.
+// PCL imports : they need to be here temporarily in order to avoid a BOOST_JOIN error. That's down to an old QT bug that should've been fixed now. That also entails I can't extract the function doPCSegmentsRegistration into another class for the time being.
 
 //#include <pcl/io/pcd_io.h>
 #include <pcl/point_types.h>
@@ -131,11 +131,12 @@ void MainWindow::on_pushButton_2_clicked ()
         pcs->squeezePointsVectorsOutOfMatches ();
 
         this->displayMatches (f,
-                              pcs->getMatches (),
+                              //pcs->getMatches (),
                               pcs->getPoints1 (),
                               pcs->getPoints2 (),
-                              _camera_shots[n].getImage(),   _camera_shots[n].getKeyPoints(),
-                              _camera_shots[n+1].getImage(), _camera_shots[n+1].getKeyPoints());
+                              _camera_shots[n].getImage(),   //_camera_shots[n].getKeyPoints(),
+                              _camera_shots[n+1].getImage()  //_camera_shots[n+1].getKeyPoints()
+                );
 
         // calculate P2
         if (n > 0) {previous_pcs =_pc->getPCSegment (n-1);}
@@ -272,11 +273,12 @@ cv::Mat MainWindow::getFundamentalAndMatches (RobustMatcher rmatcher,
 
 
 void MainWindow::displayMatches (cv::Mat f,
-                                 vector<cv::DMatch>  *matches,
+                                 //vector<cv::DMatch>  *matches,
                                  vector<cv::Point2f> *points1,
                                  vector<cv::Point2f> *points2,
-                                 cv::Mat *img1,  vector<cv::KeyPoint> *keypoints1,
-                                 cv::Mat *img2,  vector<cv::KeyPoint> *keypoints2)
+                                 cv::Mat *img1,  // vector<cv::KeyPoint> *keypoints1,
+                                 cv::Mat *img2   // vector<cv::KeyPoint> *keypoints2
+                                 )
 {
     // plot the matches
 
