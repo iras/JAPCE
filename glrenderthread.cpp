@@ -205,9 +205,9 @@ void GLRenderThread::drawCurrentOriginAxes (void)
 
 void GLRenderThread::addCameraPyramid  (cv::Mat_<double> &camera_matrix, int rows, int cols)
 {
-    double rh = rows / 1500;
-    double ch = cols / 1500;
-    double depth = 3.0;
+    double rh = rows / 2000;
+    double ch = cols / 2500;
+    double depth = 2.0;
     cv::Mat_<double> pp0, pp1, pp2, pp3, pp4;
 
     cv::Mat_<double> p0 = (cv::Mat_<double>(4,1) <<  0.0, 0.0,  0.0,  1.0);
@@ -368,7 +368,14 @@ void GLRenderThread::paintGL (void)
             temp.clear();
             cv::Point3d *temp ;
             temp = &(meta_temp->at(j));
-            glVertex3f (temp->x, temp->y, temp->z); glColor3f (1., 1. - float(i)/float(_point_cloud->size()), 0.);
+            if (i==0)
+            {
+                glVertex3f (temp->x, temp->y, temp->z); glColor3f (0, 1, 0);
+            }
+            else
+            {
+                glVertex3f (temp->x, temp->y, temp->z); glColor3f (1., 1. - float(i)/float(_point_cloud->size()), 0.);
+            }
             glEnd ();
         }
     }

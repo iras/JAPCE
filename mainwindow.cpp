@@ -20,8 +20,103 @@
 //#include <pcl/registration/correspondence_rejection_distance.h>
 //#include <pcl/registration/correspondence_rejection_trimmed.h>
 //#include <pcl/registration/correspondence_rejection_one_to_one.h>
+#include <pcl/registration/icp_nl.h>
+#include <pcl/registration/icp.h>
 
 using namespace std;
+
+/*
+int RANSACRegister (const pcl::PointCloud<pcl::PointXYZ>::Ptr& cloudA,
+                    const pcl::PointCloud<pcl::PointXYZ>::Ptr& cloudB,
+                    Eigen::Matrix4f& Tresult)
+{
+    pcl::SampleConsensusModelRegistration<pcl::PointXYZ>::Ptr sac_model (new pcl::SampleConsensusModelRegistration<pcl::PointXYZ>(cloudA));
+    sac_model->setInputTarget (cloudB);
+
+    pcl::RandomSampleConsensus<pcl::PointXYZ> ransac(sac_model);
+    //pcl::LeastMedianSquares<pcl::PointXYZ> ransac(sac_model); //might as well try these out too!
+    //pcl::ProgressiveSampleConsensus<pcl::PointXYZ> ransac(sac_model);
+    ransac.setDistanceThreshold(0.1);
+
+    //upping the verbosity level to see some info
+    //pcl::console::VERBOSITY_LEVEL vblvl = pcl::console::getVerbosityLevel ();
+    //pcl::console::setVerbosityLevel (pcl::console::L_DEBUG);
+    ransac.computeModel (1);
+    //pcl::console::setVerbosityLevel (vblvl);
+
+    Eigen::VectorXf coeffs;
+    ransac.getModelCoefficients (coeffs);
+    assert (coeffs.size() == 16);
+    Tresult = Eigen::Map<Eigen::Matrix4f>(coeffs.data(),4,4);
+
+    vector<int> inliers; ransac.getInliers (inliers);
+    return inliers.size();
+}
+
+void ScaleRANSACRegisterEx (const pcl::PointCloud<pcl::PointXYZ>::Ptr& cloudA,
+                            const pcl::PointCloud<pcl::PointXYZ>::Ptr& cloudB,
+                            Eigen::Matrix4f& Tresult,
+                            double& in_out_s,
+                            int num_iterations,
+                            double iteration_scale_step)
+{
+    double s = in_out_s;
+    int max_inliers = 0; Eigen::Matrix4f max_T; double max_s = s;
+
+    for (int i=-(num_iterations/2);i<=(num_iterations/2);i++)
+    //int i=0;
+    {
+        double _s = (s + (double)i*(s*iteration_scale_step));
+        cout << "scale synth to " << _s << endl;
+        Eigen::Matrix4f T = Eigen::Matrix4f (Eigen::Matrix4f::Identity());
+        T.topLeftCorner(3,3) *= Eigen::Matrix3f::Identity() * _s;
+        cout << "apply scale"<<endl<<T<<endl;
+
+        pcl::PointCloud<pcl::PointXYZ> cloudA_trans;
+        pcl::transformPointCloud<pcl::PointXYZ>(*cloudA, cloudA_trans, T);
+
+        int inliers_num = RANSACRegister (cloudA_trans.makeShared(), cloudB,Tresult);
+        cout << "RANSAC rigid transform:"<<endl<<Tresult.transpose()<<endl;
+        cout << "RANSAC inliers:"<<inliers_num<<endl;
+        cout << "------------------------------------------------------------------------" << endl;
+
+        if (inliers_num>max_inliers)
+        {
+            max_inliers = inliers_num;
+            max_T = Tresult;
+            max_s = _s;
+        }
+    }
+    Tresult = max_T;
+    in_out_s = max_s;
+}
+
+void ScaleRANSACRegister (const pcl::PointCloud<pcl::PointXYZ>::Ptr& cloudA,
+                          const pcl::PointCloud<pcl::PointXYZ>::Ptr& cloudB,
+                          Eigen::Matrix4f& Tresult,
+                          double& max_s,
+                          int num_iterations,
+                          double iteration_scale_step)
+{
+    pcl::PCA<pcl::PointXYZ> pca;
+    pca.setInputCloud(cloudA);
+    Eigen::Vector4f v_A_mu = pca.getMean();
+    Eigen::Vector3f ev_A = pca.getEigenValues();
+
+    pca.setInputCloud (cloudB);
+    Eigen::Vector4f v_B_mu = pca.getMean();
+    Eigen::Vector3f ev_B = pca.getEigenValues();
+
+    double s = sqrt(ev_B[0])/sqrt(ev_A[0]);
+
+    //rough
+    ScaleRANSACRegisterEx (cloudA, cloudB, Tresult, s, num_iterations, iteration_scale_step);
+    max_s = s;
+
+    //fine
+    ScaleRANSACRegisterEx (cloudA, cloudB, Tresult, max_s, num_iterations, iteration_scale_step/10.0);
+}
+*/
 
 
 
@@ -53,9 +148,9 @@ MainWindow::MainWindow (QWidget *parent) :
                                     0,1,0,0,
                                     0,0,1,0);
 
-    _K = (cv::Mat_<double>(3,3) << 3117.75,     0.0,  1629.3,
-                                      0.0,   3117.74, 1218.01,
-                                      0.0,      0.0,     1.0);
+    _K = (cv::Mat_<double>(3,3) << 3117.75,    0.0,  1629.3,
+                                      0.0,  3117.74, 1218.01,
+                                      0.0,     0.0,     1.0);
 }
 
 
@@ -107,9 +202,11 @@ void MainWindow::on_pushButton_2_clicked ()
 
     // set up reconstructor and a few other details.
     Reconstructor rec;
+    PCSegment *pcs;
     _GLFrame->delegateSetPointCloud (_pc);
-    cv::Mat_<double> *P1, *P2;
-    PCSegment *pcs, *previous_pcs;
+    cv::Mat_<double> *P1, *P2, *temp;
+    P1   = new cv::Mat_<double>(3,4);
+    temp = new cv::Mat_<double>(3,4);  *temp = cv::Mat_<double>::zeros(3,4);
 
     // loop thru to
     //      (1) instantiate pc segments.
@@ -118,10 +215,6 @@ void MainWindow::on_pushButton_2_clicked ()
     {
         _pc->addPCSegment (&(_camera_shots[n]), &(_camera_shots[n+1]));
         pcs = _pc->getPCSegment (n);
-        previous_pcs = pcs;
-
-        P1 = _camera_shots[n].getP ();
-        P2 = _camera_shots[n+1].getP ();
 
         // match two camera shots
         cv::Mat f = this->getFundamentalAndMatches (rmatcher,
@@ -138,8 +231,10 @@ void MainWindow::on_pushButton_2_clicked ()
                               _camera_shots[n+1].getImage()  //_camera_shots[n+1].getKeyPoints()
                 );
 
+        if (n==0) {P1 = _camera_shots[n].getP ();} else {P1 = temp;}// not wanted that the referenced P1 be equal to the identity every time. Only the first time.
+        P2 = _camera_shots[n+1].getP ();
+
         // calculate P2
-        if (n > 0) {previous_pcs =_pc->getPCSegment (n-1);}
         *P1 = _O.clone ();
         *P2 = rec.calculateP2 (*P1,
                                rec.getPCandidatesfromFundamentalMtx ((cv::Mat_<double>) f),
@@ -151,14 +246,22 @@ void MainWindow::on_pushButton_2_clicked ()
                                   pcs->getPoints1 (),
                                   pcs->getPoints2 (),
                                   pcs->getVectorX ());
+    }
 
-        _GLFrame->DelegateCameraPyramidAddition (*P1, _image.rows, _image.cols);
-        _GLFrame->DelegateCameraPyramidAddition (*P2, _image.rows, _image.cols);
+    // debugging purposes
+    for (unsigned int i=0; i<_camera_shots.size(); i++)
+    {
+        cout << " *P  " << *(_camera_shots[i].getP ()) << endl;
     }
 
     this->doPCSegmentsRegistration (_pc);
 
-
+    // add camera pyramids
+    for (unsigned int e=0; e<_camera_shots.size(); e++)
+    {
+        cout << "camera pyramid " << e << "  " << *(_camera_shots[e].getP()) << "\n\n";
+        _GLFrame->DelegateCameraPyramidAddition (*(_camera_shots[e].getP()), _image.rows, _image.cols);
+    }
 
 
 
@@ -178,10 +281,28 @@ void MainWindow::on_pushButton_2_clicked ()
 
 void MainWindow::doPCSegmentsRegistration (PointCloud *pc)
 {
-    cv::Point3d t; // temp var
+    cv::Point3d t;  // temp var
+
     vector<cv::DMatch> *matches1, *matches2;
     vector<cv::Point3d> *X1, *X2;
     vector<cv::Point3f> Xm1, Xm2;
+
+    cv::Point3f tf; // temp var
+    cv::Mat_<float>  Tcv_float  = (cv::Mat_<float> (4, 4));
+    cv::Mat_<double> Tcv_double = (cv::Mat_<double>(4, 4));
+    cv::Mat_<double> P3x4, additional_row, P4x4;
+
+    // //pcl::IterativeClosestPointNonLinear<pcl::PointXYZ, pcl::PointXYZ> icp;
+    // pcl::IterativeClosestPoint<pcl::PointXYZ, pcl::PointXYZ> icp;
+    pcl::registration::TransformationEstimationSVDScale <pcl::PointXYZ, pcl::PointXYZ> te;
+    Eigen::Matrix4f T;
+    //pcl::CorrespondencesPtr corrs (new pcl::Correspondences());
+    //Eigen::Matrix4f zero = Eigen::Matrix4f ();
+    //zero.setZero(4,4);
+    //Eigen::Matrix4f &T = zero;
+
+    cv::Mat_<float> v, result;
+    float* res;
 
     for (unsigned int n=0; n < pc->size()-1; n++)
     {
@@ -210,7 +331,7 @@ void MainWindow::doPCSegmentsRegistration (PointCloud *pc)
             }
         }
 
-        cout << "\nNumber of matches " << Xm1.size() << "\n\n";
+        cout << "\nNumber of registration matches " << Xm1.size() << "\n\n";
 
         // init point clouds
         pcl::PointCloud<pcl::PointXYZ>::Ptr XPm1 (new pcl::PointCloud<pcl::PointXYZ>);
@@ -221,40 +342,115 @@ void MainWindow::doPCSegmentsRegistration (PointCloud *pc)
         // turn the vectors Xm1 and Xm2 in PCL's specific pointcloud data.
         for (unsigned int i=0; i < Xm1.size(); i++)
         {
-            t = Xm1[i];   XPm1->points[i].x = t.x;   XPm1->points[i].y = t.y;   XPm1->points[i].z = t.z;
-            t = Xm2[i];   XPm2->points[i].x = t.x;   XPm2->points[i].y = t.y;   XPm2->points[i].z = t.z;
+            tf = Xm1[i];   XPm1->points[i].x = tf.x;   XPm1->points[i].y = tf.y;   XPm1->points[i].z = tf.z;
+            tf = Xm2[i];   XPm2->points[i].x = tf.x;   XPm2->points[i].y = tf.y;   XPm2->points[i].z = tf.z;
         }
 
-        pcl::registration::TransformationEstimationSVDScale <pcl::PointXYZ, pcl::PointXYZ> te;
-        Eigen::Matrix4f T;
-        //pcl::CorrespondencesPtr corrs (new pcl::Correspondences());
-        te.estimateRigidTransformation (*XPm2, *XPm1, T);
+
+        // estimate affine transform
+        /*
+        Eigen::Vector4f centroid_src, centroid_tgt;
+        // Estimate the centroids of source, target
+        pcl::compute3DCentroid (*XPm1, centroid_src);
+        pcl::compute3DCentroid (*XPm2, centroid_tgt);
+
+        Eigen::MatrixXf cloud_src_demean, cloud_tgt_demean;
+        pcl::demeanPointCloud (*XPm1, centroid_src, cloud_src_demean);
+        pcl::demeanPointCloud (*XPm2, centroid_tgt, cloud_tgt_demean);
+        te.getTransformationFromCorrelation (cloud_src_demean, centroid_src, cloud_tgt_demean, centroid_tgt, T);
+        */
+
+        /*
+        // ICP registration
+        icp.setInputSource (XPm2);
+        icp.setInputTarget (XPm1);
+        //typedef pcl::registration::TransformationEstimationLM <pcl::PointXYZ, pcl::PointXYZ> te;
+        typedef pcl::registration::TransformationEstimationLM <pcl::PointXYZ, pcl::PointXYZ> te;
+        boost::shared_ptr<te> teSVDscale (new te);
+        icp.setTransformationEstimation (teSVDscale);
+        pcl::PointCloud<pcl::PointXYZ> Final;   Final.clear();
+        //icp.setRANSACOutlierRejectionThreshold (10);
+        //icp.setRANSACIterations (1000);
+        // icp.setMaximumIterations (10000);
+        // icp.setTransformationEpsilon (1e-3);
+        icp.align (Final);
+        std::cout << "has converged:" << icp.hasConverged() << " score: " << icp.getFitnessScore() << std::endl;
+        std::cout << icp.getFinalTransformation() << std::endl;
+
+        T = icp.getFinalTransformation();
+        */
+
+        // using umeyama
+        // Convert to Eigen format
+        const int npts = static_cast <int> ((*XPm2).size ());
+
+        Eigen::Matrix<float, 3, Eigen::Dynamic> cloud_src (3, npts);
+        Eigen::Matrix<float, 3, Eigen::Dynamic> cloud_tgt (3, npts);
+
+        for (int i = 0; i < npts; ++i)
+        {
+            cloud_src (0, i) = XPm2->points[i].x;
+            cloud_src (1, i) = XPm2->points[i].y;
+            cloud_src (2, i) = XPm2->points[i].z;
+
+            cloud_tgt (0, i) = XPm1->points[i].x;
+            cloud_tgt (1, i) = XPm1->points[i].y;
+            cloud_tgt (2, i) = XPm1->points[i].z;
+        }
+
+        // Call Umeyama directly from Eigen (PCL patched version until Eigen is released)
+        T = pcl::umeyama (cloud_src, cloud_tgt, true);
+
+
+        //te.estimateRigidTransformation (*XPm2, *XPm1, T);
         //pcl::transformPointCloud (*source_segmented_, *source_transformed_, T);
 
-        // convert the Eigen matrix to cv:Mat_.
-        cv::Mat_<float> Tcv = (cv::Mat_<float>(4, 4));
-        for (int m = 0; m < 16; m++)   Tcv.at<float> (m/4, m%4) = T(m/4, m%4);
+        //double q = 10.0;
+        //ScaleRANSACRegister (XPm2, XPm1, T, q, 100, .03);
+
+
+        // convert the Eigen matrix to cv::Mat_<float> version and to a cv::Mat_<double> version.
+        for (int m = 0; m < 16; m++)
+        {
+            Tcv_float.at <float>  (m/4, m%4) = T(m/4, m%4);
+            Tcv_double.at<double> (m/4, m%4) = (double) T(m/4, m%4);
+        }
+
+        // apply transform to the n-th camera matrix.
+        if (n>0)
+        {
+            // convert 4x3 camera matrix into a 4x4
+            P3x4 =  (*(*(pc->getPCSegment (n)->getCamShot2())).getP());
+            additional_row = (cv::Mat_<double>(1,4) <<  0, 0, 0, 1);
+            cv::vconcat (P3x4, additional_row, P4x4); // concatenate the additional_row to the bottom of the P3x4 matrix and whack the result into the P4x4 matrix.
+
+            P4x4 = P4x4 * Tcv_double.inv(); // apply transform to P4x4 (extended camera matrix)
+            cout << "P4x4 : " << P4x4 << endl;
+            cout << "BEFORE " << (*(*(pc->getPCSegment (n)->getCamShot2())).getP()) << endl;
+            (*(*(pc->getPCSegment (n)->getCamShot2())).getP()) = P4x4.rowRange(0,3); // get only the first 3 rows and fling it into the referenced Camera matrix var.
+            cout << "AFTER  " << (*(*(pc->getPCSegment (n)->getCamShot2())).getP()) << endl;
+        }
 
 
         cout << T << "\n\n";
 
-        //cv::Mat registration_transform = this->doPCSegmentsRegistration (&Xm1, &Xm2);
-
-
-        cv::Mat_<float> v;
-        cv::Mat_<float> result;
+        // apply the registration transform to the triangulated points.
         for (unsigned int i=0; i < X2->size(); i++)
         {
             t = (*X2)[i];
             v = (cv::Mat_<float>(4,1) << float(t.x), float(t.y), float(t.z), 1);
 
-            result = Tcv * v;
+            result = Tcv_float * v;
 
-            float* res = result.ptr<float>(0);
+            res = result.ptr<float>(0);
             (*X2)[i] = cv::Point3d (double (res[0]), double (res[1]), double (res[2]));
         }
     }
 }
+
+
+
+
 
 
 
@@ -300,13 +496,13 @@ void MainWindow::displayMatches (cv::Mat f,
 
     // red circle the matches.
     for (unsigned int i = 0; i<points1->size(); i++)
-        {
-            cv::Point2f p1 = points1->at(i);
-            cv::circle (img1_clone, p1, 4, cv::Scalar(0,0,255), 3); // B G R
+    {
+        cv::Point2f p1 = points1->at(i);
+        cv::circle (img1_clone, p1, 4, cv::Scalar(0,0,255), 3); // B G R
 
-            cv::Point2f p2 = points2->at(i);
-            cv::circle (img2_clone, p2, 4, cv::Scalar(0,0,255), 3); // B G R
-        }
+        cv::Point2f p2 = points2->at(i);
+        cv::circle (img2_clone, p2, 4, cv::Scalar(0,0,255), 3); // B G R
+    }
 
     // draw epipolar lines
     // 1st image
