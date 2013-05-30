@@ -94,6 +94,8 @@ void MainWindow::on_pushButton_3_clicked () {}
 
 void MainWindow::on_pushButton_2_clicked ()
 {
+    _GLFrame->pauseRenderThread();
+
     // save the current time.
     _start = clock ();
 

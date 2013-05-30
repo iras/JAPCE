@@ -40,6 +40,12 @@ void GLRenderThread::stop()
     doRendering = false;
 }
 
+void GLRenderThread::resume()
+{
+    doRendering = true;
+    this->start();
+}
+
 
 void GLRenderThread::run ()
 {
@@ -93,6 +99,8 @@ void GLRenderThread::GLResize (int width, int height)
 
 void GLRenderThread::drawGrid (void)
 {
+    glLineWidth (1.0);
+
     // grid
     for (float i = -10; i <= 10; i += 1)
     {
@@ -151,6 +159,8 @@ void GLRenderThread::drawGrid (void)
     glVertex3f (0, -20, -20);
     glEnd ();
 
+    glLineWidth (3.0);
+
     // main axis
     glBegin (GL_LINES);
     glColor3ub (250, 0, 0);
@@ -184,6 +194,8 @@ void GLRenderThread::drawCurrentOriginAxes (void)
     glBegin (GL_POINTS);
         glColor3f (0.0,1.0,1.0); glVertex3f (_o.x(), _o.y(), _o.z());
     glEnd ();
+
+    glLineWidth (2.0);
 
     // main axis
     glBegin (GL_LINES);
@@ -239,6 +251,8 @@ void GLRenderThread::displayCameraPyramids  (void)
     {
         vector <cv::Mat_<double> > cp;
         cp = camera_pyramids[i];
+
+        glLineWidth (1.0);
 
         // camera pyramid
         glBegin (GL_LINES);
@@ -314,6 +328,9 @@ void GLRenderThread::paintGL (void)
     _current_angles += _delta;
 
     glClear (GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // Clear Z−Buffer
+
+    glEnable (GL_DEPTH_TEST);
+    glDepthMask (GL_TRUE);
 
     // Set the camera orientation :
     glMatrixMode (GL_MODELVIEW) ;
@@ -403,6 +420,7 @@ void GLRenderThread::addLoaderAnim (void)
     vector<vector<float> > meta_temp;
     meta_temp.clear ();
 
+    /*
     temp.clear ();
     temp.push_back (20.0f);
     temp.push_back (0.0f);
@@ -420,6 +438,7 @@ void GLRenderThread::addLoaderAnim (void)
     temp.push_back (0.0f);
     temp.push_back (-5.0f);
     _loader_anim.push_back (temp);
+    */
 }
 
 void GLRenderThread::removeLoaderAnim (void)

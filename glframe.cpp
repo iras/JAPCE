@@ -24,10 +24,20 @@ void GLFrame::initRenderThread (void)
     RenderThread.start();
 }
 
+void GLFrame::resumeRenderThread (void)
+{
+    RenderThread.resume();
+}
+
 void GLFrame::stopRenderThread (void)
 {
     RenderThread.stop();
     RenderThread.wait();
+}
+
+void GLFrame::pauseRenderThread (void)
+{
+    RenderThread.stop();
 }
 
 void GLFrame::delegateSetPointCloud (PointCloud *point_cloud)
@@ -64,6 +74,18 @@ void GLFrame::wheelEvent (QWheelEvent *event)
     {
         RenderThread.updateCameraDistanceFromCenter (event->delta());
     }
+}
+
+void GLFrame::focusInEvent (QFocusEvent *event)
+{
+    cout << "focus In" << endl;
+    this->resumeRenderThread ();
+}
+
+void GLFrame::focusOutEvent (QFocusEvent *event)
+{
+    cout << "focus Out" << endl;
+    this->pauseRenderThread ();
 }
 
 void GLFrame::keyPressEvent (QKeyEvent *event)

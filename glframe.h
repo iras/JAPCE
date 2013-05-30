@@ -20,6 +20,8 @@ public:
 
     void initRenderThread (void);
     void stopRenderThread (void);
+    void resumeRenderThread (void);
+    void pauseRenderThread (void);
 
     bool getCtrlMetaFlag ();
     bool getAltFlag ();
@@ -35,6 +37,8 @@ protected:
     void closeEvent  (QCloseEvent *event);
     void resizeEvent (QResizeEvent *event);
     void paintEvent  (QPaintEvent *);
+    void focusInEvent  (QFocusEvent *);
+    void focusOutEvent (QFocusEvent *);
     void wheelEvent  (QWheelEvent *);
     void keyPressEvent   (QKeyEvent *event);
     void keyReleaseEvent (QKeyEvent *event);

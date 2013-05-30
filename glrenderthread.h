@@ -27,6 +27,7 @@ public:
     void resizeViewport (const QSize &size);
     void run  (void);
     void stop (void);
+    void resume (void);
     void updateCameraDistanceFromCenter (float dist);
 
     void setPointCloud (PointCloud *point_cloud);
