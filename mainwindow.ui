@@ -94,6 +94,24 @@
       <string>Start crunching</string>
      </property>
     </widget>
+    <widget class="QCheckBox" name="checkbox_GPU">
+     <property name="geometry">
+      <rect>
+       <x>3</x>
+       <y>74</y>
+       <width>51</width>
+       <height>20</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <pointsize>10</pointsize>
+      </font>
+     </property>
+     <property name="text">
+      <string>GPU ?</string>
+     </property>
+    </widget>
    </widget>
    <widget class="QGroupBox" name="groupBox_2">
     <property name="geometry">

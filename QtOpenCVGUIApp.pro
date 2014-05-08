@@ -24,6 +24,7 @@ SOURCES += main.cpp \
 
 HEADERS  += mainwindow.h\
             matcher.h \
+            matchergpu.h \
             reconstructor.h \
             glframe.h \
             glrenderthread.h \
@@ -45,7 +46,9 @@ LIBS += -L/opt/local/lib/ -lopencv_core \
                           -lopencv_features2d \
                           -lopencv_calib3d \
                           -lopencv_nonfree \
-                          -lopencv_legacy
+                          -lopencv_legacy \
+                          -lopencv_gpu
+
 #LIBS += -L/opt/local/lib/ -lQtOpenGL
 
 

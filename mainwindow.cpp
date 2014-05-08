@@ -24,7 +24,7 @@
 #include <pcl/registration/icp.h>
 
 using namespace std;
-
+#include "opencv2/gpu/gpu.hpp"
 
 
 
@@ -39,7 +39,7 @@ MainWindow::MainWindow (QWidget *parent) :
     _GLFrame->initRenderThread();
 
     // setting the ending sound up.
-    _ping = new QSound ("/Users/macbookpro/git/JAPCE/ping.wav");
+    _ping = new QSound ("/Users/IvRas/git/JAPCE/ping.wav");
     _ping->setLoops (1);
 
     // reset of labels' texts.
@@ -58,6 +58,10 @@ MainWindow::MainWindow (QWidget *parent) :
     _K = (cv::Mat_<double>(3,3) << 3117.75,    0.0,  1629.3,
                                       0.0,  3117.74, 1218.01,
                                       0.0,     0.0,     1.0);
+
+    //
+    cout << " *** Number of GPU devices: " << cv::gpu::getCudaEnabledDeviceCount () << endl;
+    cout << " *** GPU index: " << cv::gpu::getDevice () << endl;
 }
 
 
@@ -102,12 +106,19 @@ void MainWindow::on_pushButton_2_clicked ()
     // set up feature detector.
     cv::Ptr<cv::FeatureDetector> pfd = new cv::SurfFeatureDetector (10);
 
-    // set up robust matcher.
+    // set up robust matcher. Two robust matchers are declared here. One for the GPU and the other for the CPU (single core).
+    RobustGpuMatcher rmatcherGPU;
+    rmatcherGPU.setConfidenceLevel (0.98);
+    rmatcherGPU.setMinDistanceToEpipolar (1.0);
+    rmatcherGPU.setRatio (0.65f);
+    rmatcherGPU.setFeatureDetector (pfd);
+
     RobustMatcher rmatcher;
     rmatcher.setConfidenceLevel (0.98);
     rmatcher.setMinDistanceToEpipolar (1.0);
     rmatcher.setRatio (0.65f);
     rmatcher.setFeatureDetector (pfd);
+
 
     // set up reconstructor and a few other details.
     Reconstructor rec;
@@ -126,10 +137,22 @@ void MainWindow::on_pushButton_2_clicked ()
         pcs = _pc->getPCSegment (n);
 
         // match two camera shots
-        cv::Mat f = this->getFundamentalAndMatches (rmatcher,
-                                                    pcs->getMatches (),
-                                                    _camera_shots[n].getImage(),   _camera_shots[n].getKeyPoints(),
-                                                    _camera_shots[n+1].getImage(), _camera_shots[n+1].getKeyPoints());
+        cv::Mat f;
+
+        if (ui->checkbox_GPU->isChecked())
+        {
+            f = this->getFundamentalAndMatchesGPU (rmatcherGPU,
+                                                   pcs->getMatches (),
+                                                   _camera_shots[n].getImage(),   _camera_shots[n].getKeyPoints(),
+                                                   _camera_shots[n+1].getImage(), _camera_shots[n+1].getKeyPoints());
+        }
+        else
+        {
+            f = this->getFundamentalAndMatches (rmatcher,
+                                                pcs->getMatches (),
+                                                _camera_shots[n].getImage(),   _camera_shots[n].getKeyPoints(),
+                                                _camera_shots[n+1].getImage(), _camera_shots[n+1].getKeyPoints());
+        }
         pcs->squeezePointsVectorsOutOfMatches ();
 
         this->displayMatches (f,
@@ -345,6 +368,19 @@ void MainWindow::doPCSegmentsRegistration (PointCloud *pc)
 
 
 
+
+cv::Mat MainWindow::getFundamentalAndMatchesGPU (RobustGpuMatcher rmatcher,
+                                              vector<cv::DMatch> *matches,
+                                              cv::Mat *img1,  vector<cv::KeyPoint> *keypoints1,
+                                              cv::Mat *img2,  vector<cv::KeyPoint> *keypoints2)
+{
+    rmatcher.detectFeatures (*img1, *img2, *keypoints1, *keypoints2);
+    ui->label_3->setText (QString::number (rmatcher.getNumberFeaturesImage1 ()));
+    ui->label_5->setText (QString::number (rmatcher.getNumberFeaturesImage2 ()));
+    cv::Mat f = rmatcher.match (*img1, *img2, *matches, *keypoints1, *keypoints2);
+
+    return f;
+}
 
 cv::Mat MainWindow::getFundamentalAndMatches (RobustMatcher rmatcher,
                                               vector<cv::DMatch> *matches,

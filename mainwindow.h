@@ -9,6 +9,7 @@
 #include <time.h>
 
 #include "matcher.h"
+#include "matchergpu.h"
 #include "reconstructor.h"
 #include "glframe.h"
 #include <pointcloud.h>
@@ -47,10 +48,15 @@ public:
 
     void test ();
     
-    cv::Mat getFundamentalAndMatches (RobustMatcher rmatcher,
-                                      vector<cv::DMatch> *matches,
-                                      cv::Mat *img1, vector<cv::KeyPoint> *keypoints1,
-                                      cv::Mat *img2, vector<cv::KeyPoint> *keypoints2);
+    cv::Mat getFundamentalAndMatches    (RobustMatcher rmatcher,
+                                         vector<cv::DMatch> *matches,
+                                         cv::Mat *img1, vector<cv::KeyPoint> *keypoints1,
+                                         cv::Mat *img2, vector<cv::KeyPoint> *keypoints2);
+
+    cv::Mat getFundamentalAndMatchesGPU (RobustGpuMatcher rmatcher,
+                                         vector<cv::DMatch> *matches,
+                                         cv::Mat *img1, vector<cv::KeyPoint> *keypoints1,
+                                         cv::Mat *img2, vector<cv::KeyPoint> *keypoints2);
 
     void displayMatches          (cv::Mat f,
                                   //vector<cv::DMatch> *matches,

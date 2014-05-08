@@ -46,8 +46,8 @@ class RobustMatcher
         double confidence; // confidence level (probability)
         double distance; // min distance to epipolar
 
-        int _features_image_1;
-        int _features_image_2;
+        int _image_features_1;
+        int _image_features_2;
 
     public:
 
@@ -230,8 +230,8 @@ class RobustMatcher
             detector->detect (image1, keypoints1);
             detector->detect (image2, keypoints2);
 
-            _features_image_1 = keypoints1.size ();
-            _features_image_2 = keypoints2.size ();
+            _image_features_1 = keypoints1.size ();
+            _image_features_2 = keypoints2.size ();
         }
 
 
@@ -251,7 +251,6 @@ class RobustMatcher
 
             // 2. Match the two image descriptors
 
-            // Construction of the matcher
             cv::BruteForceMatcher<cv::L2<float> > matcher;
 
             // from image 1 to image 2
@@ -299,8 +298,8 @@ class RobustMatcher
 
         // getters
 
-        int getNumberFeaturesImage1 () {return _features_image_1;}
-        int getNumberFeaturesImage2 () {return _features_image_2;}
+        int getNumberFeaturesImage1 () {return _image_features_1;}
+        int getNumberFeaturesImage2 () {return _image_features_2;}
 };
 
 #endif
