@@ -5,10 +5,14 @@ ver 0.0.1
 
 JA-series Point Cloud Extractor written in C++ and Qt Framework using openCV, PCL and openGL.
 
-![JAPCE early screenshot](http://www.stc0.co.uk/early_JAPCE_screenshot.jpg)
+Two small videos are available [here](https://vimeo.com/98805466) and [here](https://vimeo.com/98805467)
 
-The intrinsic matrix (camera calibration) is temporarily set to the iPhone4S camera's lens.
 
-Using Laganiere's robust matcher at the moment. Switching to the optical flow's one soon.
+  Work In Progress !
 
-Work in progress !
+
+------
+
+i) The intrinsic matrix (camera calibration) is temporarily set to the iPhone4S camera's lens.
+
+ii) Using Laganiere's robust matcher and its GPU version at the moment. Possibly switching to the optical flow's one at some point.
